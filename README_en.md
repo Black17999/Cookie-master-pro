@@ -1,5 +1,6 @@
 # CookieMaster Pro 🍪
 
+[![中文](https://img.shields.io/badge/中文-README.md-blue.svg)](README.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-brightgreen.svg)](https://chrome.google.com/webstore)
 
@@ -45,14 +46,20 @@ A simple yet powerful Cookie editor that quickly retrieves, views, and exports a
 
 ## 🖼️ Screenshots
 
+> **Note**: To properly display screenshots on GitHub, please download the following images and save them to the `screenshots` directory in the project. If you don't have screenshots, you can delete this section or replace with actual screenshot links.
+>
+> 1. Create a `screenshots` directory: `mkdir screenshots`
+> 2. Save the following images to the `screenshots` directory
+> 3. Update image links to relative paths
+
 <div style="text-align: center;">
   <figure>
-    <img src="https://tc.1717.qzz.io/file/AgACAgUAAyEGAASl4l5eAAMIaMF9RHA6YL3AP-ADiG5-_wABG-UlAAIoyDEbI3kIViDgmGREsra8AQADAgADeAADNgQ.png" alt="CookieMaster Pro Main Interface" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
+    <img src="screenshots/main-interface.png" alt="CookieMaster Pro Main Interface" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
     <figcaption>CookieMaster Pro Main Interface</figcaption>
   </figure>
   
   <figure>
-    <img src="https://tc.1717.qzz.io/file/AgACAgUAAyEGAASl4l5eAAMJaMF9VsNAlao6BG45_-LUneE6pMkAAinIMRsjeQhWuaGP54rywKQBAAMCAAN4AAM2BA.png" alt="CookieMaster Pro Edit Interface" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
+    <img src="screenshots/edit-interface.png" alt="CookieMaster Pro Edit Interface" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
     <figcaption>CookieMaster Pro Edit Interface</figcaption>
   </figure>
 </div>
