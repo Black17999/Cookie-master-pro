@@ -46,11 +46,6 @@ A simple yet powerful Cookie editor that quickly retrieves, views, and exports a
 
 ## 🖼️ Screenshots
 
-> **Note**: To properly display screenshots on GitHub, please download the following images and save them to the `screenshots` directory in the project. If you don't have screenshots, you can delete this section or replace with actual screenshot links.
->
-> 1. Create a `screenshots` directory: `mkdir screenshots`
-> 2. Save the following images to the `screenshots` directory
-> 3. Update image links to relative paths
 
 <div style="text-align: center;">
   <figure>
