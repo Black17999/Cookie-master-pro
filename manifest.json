@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "CookieMaster Pro",
+  "description": "是一款简单而强大的 Cookie 编辑器，可快速获取、查看和导出当前域名下的所有 Cookie。支持导出为多种格式（Header String、JSON、Netscape），可直接推送到远程 API，并允许在不离开当前标签页的情况下快速创建、编辑或删除 Cookie。完美提升 Cookie 管理效率，让开发与调试更加直观便捷。",
+  "version": "2.0",
+  "permissions": [
+    "cookies",
+    "tabs",
+    "clipboardWrite",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CookieMaster Pro"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}

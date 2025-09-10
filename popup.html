@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>CookieMaster Pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="loader" class="loader-container">
+    <div class="loader"></div>
+  </div>
+  <div id="mainContent" class="container" style="display: none;">
+    <h1>🍪 CookieMaster Pro</h1>
+
+    <div class="card">
+      <div class="site-info-container">
+        <h3 class="site-title">当前网站</h3>
+        <span id="siteInfo" class="site-url"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>远程 API 地址</h3>
+      <div class="api-row">
+        <input id="apiInput" type="text" placeholder="https://your-server.com/upload-cookie" />
+        <button id="saveApiBtn" class="btn primary">保存</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Cookie 内容</h3>
+      <textarea id="cookieText" readonly></textarea>
+      <div class="button-group">
+       <button id="copyBtn" class="btn">复制 Header</button>
+       <button id="exportHeader" class="btn">导出 Header</button>
+       <button id="exportJSON" class="btn">导出 JSON</button>
+       <button id="exportNetscape" class="btn">导出 Netscape</button>
+       <button id="importBtn" class="btn">导入cookie</button>
+       <button id="addCookieBtn" class="btn">添加 Cookie</button>
+       <button id="uploadBtn" class="btn primary">上传到远程 API</button>
+       <button id="clearBtn" class="btn danger">清除并刷新</button>
+     </div>
+    </div>
+
+    <div class="card">
+      <div class="cookie-header">
+        <h3>检测到的关键 Cookie</h3>
+        <div class="sort-buttons">
+          <button id="sortByPriority" class="sort-btn active">按敏感程度排序</button>
+          <button id="sortByOrder" class="sort-btn">按获取顺序排序</button>
+        </div>
+      </div>
+      <ul id="cookieNames" class="cookie-list"></ul>
+    </div>
+
+    <!-- 导入Cookie模态框 -->
+    <div id="importModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>导入Cookie</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          
+          <!-- 导入模式选择 -->
+          <div class="import-mode">
+            <label class="radio-container">
+              <input type="radio" name="importMode" value="text" checked>
+              <span class="radio-checkmark"></span>
+              使用文本
+            </label>
+            <label class="radio-container">
+              <input type="radio" name="importMode" value="file">
+              <span class="radio-checkmark"></span>
+              使用文件
+            </label>
+          </div>
+          
+          <!-- URL输入框 -->
+          <div class="form-group">
+            <label for="importUrl">URL</label>
+            <input type="text" id="importUrl" placeholder="https://example.com">
+          </div>
+          
+          <!-- 文本输入区域 -->
+          <div id="textImportArea" class="form-group">
+            <label for="cookieValue">Cookie value</label>
+            <textarea id="cookieValue" placeholder="JSON/Header string/Netscape"></textarea>
+          </div>
+          
+          <!-- 文件选择区域 -->
+          <div id="fileImportArea" class="form-group" style="display: none;">
+            <label>选择要导入的文件</label>
+            <div class="file-input-container">
+              <button id="selectFileBtn" class="btn">选择文件</button>
+              <span id="fileName">未选择任何文件</span>
+              <input type="file" id="fileInput" style="display: none;">
+            </div>
+          </div>
+          
+          <!-- 密码输入 -->
+          <div class="form-group">
+            <label for="decryptPassword">用于解密Cookie的密码</label>
+            <input type="password" id="decryptPassword" placeholder="如果Cookie受加密保护，请输入解密密码（可选）">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelImportBtn" class="btn">取消</button>
+          <button id="confirmImportBtn" class="btn primary">导入</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加Cookie模态框 -->
+    <div id="addCookieModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>添加 Cookie</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          
+          <!-- 名称 -->
+          <div class="form-group">
+            <label for="cookieName">名称（必填）</label>
+            <input type="text" id="cookieName" placeholder="请输入 Cookie 名称">
+            <div class="error-message" id="nameError"></div>
+          </div>
+          
+          <!-- 值 -->
+          <div class="form-group">
+            <label for="cookieValue">值（必填）</label>
+            <textarea id="cookieValueText" placeholder="请输入 Cookie 值"></textarea>
+            <div class="error-message" id="valueError"></div>
+          </div>
+          
+          <!-- 过期时间 -->
+          <div class="form-group">
+            <label for="cookieExpiration">过期时间</label>
+            <input type="datetime-local" id="cookieExpiration">
+            <div class="expiration-buttons">
+              <button type="button" id="clearExpiration">清除</button>
+              <button type="button" id="setToToday">今天</button>
+            </div>
+          </div>
+          
+          <!-- HttpOnly -->
+          <div class="form-group">
+            <label for="cookieHttpOnly">仅 HTTP 可见（HttpOnly）</label>
+            <select id="cookieHttpOnly">
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </div>
+          
+          <!-- SameSite -->
+          <div class="form-group">
+            <label for="cookieSameSite">同站策略（SameSite）</label>
+            <select id="cookieSameSite">
+              <option value="no_restriction">不限制（SameSite=None）</option>
+              <option value="lax">宽松（Lax）</option>
+              <option value="strict">严格（Strict）</option>
+              <option value="unspecified">未指定（浏览器默认）</option>
+            </select>
+          </div>
+          
+          <!-- Secure -->
+          <div class="form-group">
+            <label for="cookieSecure">仅 HTTPS（Secure）</label>
+            <select id="cookieSecure">
+              <option value="false">否</option>
+              <option value="true">是</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelAddCookieBtn" class="btn">取消</button>
+          <button id="confirmAddCookieBtn" class="btn primary" disabled>添加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteConfirmModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>删除 Cookie</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>您要删除 Cookie 吗？</p>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelDeleteBtn" class="btn">取消</button>
+          <button id="confirmDeleteBtn" class="btn danger">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑 Cookie 模态框 -->
+    <div id="editCookieModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>编辑 Cookie</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>您要编辑 Cookie 吗？</p>
+          
+          <!-- 名称 -->
+          <div class="form-group">
+            <label for="editCookieName">名称（必填）</label>
+            <input type="text" id="editCookieName" placeholder="请输入 Cookie 名称" disabled>
+          </div>
+          
+          <!-- 值 -->
+          <div class="form-group">
+            <label for="editCookieValue">值（必填）</label>
+            <textarea id="editCookieValue" placeholder="请输入 Cookie 值"></textarea>
+          </div>
+          
+          <!-- 过期时间 -->
+          <div class="form-group">
+            <label for="editCookieExpiration">过期时间</label>
+            <input type="datetime-local" id="editCookieExpiration">
+            <div class="expiration-buttons">
+              <button type="button" id="clearEditExpiration">清除</button>
+              <button type="button" id="setEditToToday">今天</button>
+            </div>
+          </div>
+          
+          <!-- 路径 -->
+          <div class="form-group">
+            <label for="editCookiePath">路径</label>
+            <input type="text" id="editCookiePath" placeholder="请输入 Cookie 路径" disabled>
+          </div>
+          
+          <!-- HttpOnly -->
+          <div class="form-group">
+            <label for="editCookieHttpOnly">仅 HTTP 可见（HttpOnly）</label>
+            <select id="editCookieHttpOnly">
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </div>
+          
+          <!-- SameSite -->
+          <div class="form-group">
+            <label for="editCookieSameSite">同站策略（SameSite）</label>
+            <select id="editCookieSameSite">
+              <option value="no_restriction">不限制</option>
+              <option value="lax">宽松</option>
+              <option value="strict">严格</option>
+              <option value="unspecified">未指定</option>
+            </select>
+          </div>
+          
+          <!-- Secure -->
+          <div class="form-group">
+            <label for="editCookieSecure">仅 HTTPS（Secure）</label>
+            <select id="editCookieSecure">
+              <option value="false">否</option>
+              <option value="true">是</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelEditCookieBtn" class="btn">取消</button>
+          <button id="confirmEditCookieBtn" class="btn primary">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
