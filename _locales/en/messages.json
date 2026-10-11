@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "CookieMaster Pro",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "A powerful cookie manager in your browser's side panel: view, search, edit, import and export cookies from any site, with batch operations, JWT decoding, security risk hints and automatic dark mode.",
+    "description": "Extension description"
+  }
+}

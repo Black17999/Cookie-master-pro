@@ -2,277 +2,401 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CookieMaster Pro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="loader" class="loader-container">
     <div class="loader"></div>
+    <p class="loader-text" data-i18n="loading">正在读取 Cookie…</p>
   </div>
-  <div id="mainContent" class="container" style="display: none;">
-    <h1>🍪 CookieMaster Pro</h1>
 
-    <div class="card">
-      <div class="site-info-container">
-        <h3 class="site-title">当前网站</h3>
-        <span id="siteInfo" class="site-url"></span>
+  <div id="app" class="app" hidden>
+    <header class="app-bar">
+      <div class="brand">
+        <img src="icon-32.png" alt="" class="brand-icon">
+        <div class="brand-text">
+          <h1 data-i18n="appName">CookieMaster Pro</h1>
+          <p id="siteInfo" class="brand-sub">—</p>
+        </div>
+      </div>
+      <button id="githubBtn" class="icon-btn" data-i18n-title="githubRepo" aria-label="GitHub">
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+        </svg>
+      </button>
+      <button id="settingsBtn" class="icon-btn" data-i18n-title="settings" aria-label="设置">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <nav class="tabs">
+      <button id="tabCurrent" class="tab active" data-tab="current">
+        <span data-i18n="tabCurrent">当前网站</span>
+        <span id="countCurrent" class="tab-count">0</span>
+      </button>
+      <button id="tabAll" class="tab" data-tab="all">
+        <span data-i18n="tabAll">全部 Cookie</span>
+        <span id="countAll" class="tab-count">0</span>
+      </button>
+    </nav>
+
+    <div class="search-bar">
+      <span class="search-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M21 21l-4.3-4.3"></path>
+        </svg>
+      </span>
+      <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" autocomplete="off" spellcheck="false">
+      <button id="searchClear" class="search-clear" data-i18n-title="clearSearch" hidden>×</button>
+    </div>
+
+    <div class="toolbar">
+      <span id="listMeta" class="list-meta">—</span>
+      <div class="toolbar-actions">
+        <button id="sortBtn" class="chip" data-i18n="sortPriority">敏感度优先</button>
+        <button id="filterBtn" class="chip">全部</button>
+        <button id="selectBtn" class="chip" data-i18n="enterSelection">选择</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3>远程 API 地址</h3>
-      <div class="api-row">
-        <input id="apiInput" type="text" placeholder="https://your-server.com/upload-cookie" />
-        <button id="saveApiBtn" class="btn primary">保存</button>
+    <main class="content" id="content">
+      <ul id="cookieList" class="cookie-list"></ul>
+      <div id="emptyState" class="empty-state" hidden>
+        <div class="empty-title" id="emptyTitle">—</div>
+        <div class="empty-desc" id="emptyDesc">—</div>
       </div>
-    </div>
+    </main>
 
-    <div class="card">
-      <h3>Cookie 内容</h3>
-      <textarea id="cookieText" readonly></textarea>
-      <div class="button-group">
-       <button id="copyBtn" class="btn">复制 Header</button>
-       <button id="exportHeader" class="btn">导出 Header</button>
-       <button id="exportJSON" class="btn">导出 JSON</button>
-       <button id="exportNetscape" class="btn">导出 Netscape</button>
-       <button id="importBtn" class="btn">导入cookie</button>
-       <button id="addCookieBtn" class="btn">添加 Cookie</button>
-       <button id="uploadBtn" class="btn primary">上传到远程 API</button>
-       <button id="clearBtn" class="btn danger">清除并刷新</button>
-     </div>
-    </div>
+    <footer class="action-bar" id="normalActions">
+      <button id="addCookieBtn" class="btn primary grow" data-i18n="addCookie">＋ 添加</button>
+      <button id="codeBtn" class="btn" data-i18n="generateCode">代码</button>
+      <button id="exportBtn" class="btn" data-i18n="exportBtn">导出</button>
+      <button id="importBtn" class="btn" data-i18n="importBtn">导入</button>
+    </footer>
 
-    <div class="card">
-      <div class="cookie-header">
-        <h3>检测到的关键 Cookie</h3>
-        <div class="sort-buttons">
-          <button id="sortByPriority" class="sort-btn active">按敏感程度排序</button>
-          <button id="sortByOrder" class="sort-btn">按获取顺序排序</button>
-        </div>
+    <footer class="action-bar" id="batchActions" hidden>
+      <button id="selectAllBtn" class="btn grow">全选</button>
+      <button id="batchCopyBtn" class="btn" data-i18n="batchCopy">复制</button>
+      <button id="batchExportBtn" class="btn" data-i18n="batchExport">导出</button>
+      <button id="batchDeleteBtn" class="btn danger" data-i18n="batchDelete">删除</button>
+      <button id="exitSelectBtn" class="btn" data-i18n="exitSelection">退出</button>
+    </footer>
+  </div>
+
+  <!-- 设置 -->
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="settingsTitle">设置</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
       </div>
-      <ul id="cookieNames" class="cookie-list"></ul>
-    </div>
+      <div class="modal-body">
+        <div class="setting-section">
+          <h3 data-i18n="appearance">外观</h3>
+          <div class="theme-options" id="themeOptions">
+            <button type="button" class="theme-option active" data-theme="auto" data-i18n="themeAuto">跟随系统</button>
+            <button type="button" class="theme-option" data-theme="light" data-i18n="themeLight">浅色</button>
+            <button type="button" class="theme-option" data-theme="dark" data-i18n="themeDark">深色</button>
+          </div>
+          <p class="form-hint" data-i18n="themeHint"></p>
+        </div>
 
-    <!-- 导入Cookie模态框 -->
-    <div id="importModal" class="modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>导入Cookie</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          
-          <!-- 导入模式选择 -->
-          <div class="import-mode">
-            <label class="radio-container">
-              <input type="radio" name="importMode" value="text" checked>
-              <span class="radio-checkmark"></span>
-              使用文本
-            </label>
-            <label class="radio-container">
-              <input type="radio" name="importMode" value="file">
-              <span class="radio-checkmark"></span>
-              使用文件
-            </label>
+        <div class="setting-section">
+          <h3 data-i18n="remoteApi">远程 API</h3>
+          <div class="setting-row">
+            <input id="apiInput" type="text" placeholder="https://your-server.com/upload-cookie">
+            <button id="saveApiBtn" class="btn" data-i18n="save">保存</button>
           </div>
-          
-          <!-- URL输入框 -->
-          <div class="form-group">
-            <label for="importUrl">URL</label>
-            <input type="text" id="importUrl" placeholder="https://example.com">
-          </div>
-          
-          <!-- 文本输入区域 -->
-          <div id="textImportArea" class="form-group">
-            <label for="cookieValue">Cookie value</label>
-            <textarea id="cookieValue" placeholder="JSON/Header string/Netscape"></textarea>
-          </div>
-          
-          <!-- 文件选择区域 -->
-          <div id="fileImportArea" class="form-group" style="display: none;">
-            <label>选择要导入的文件</label>
-            <div class="file-input-container">
-              <button id="selectFileBtn" class="btn">选择文件</button>
-              <span id="fileName">未选择任何文件</span>
-              <input type="file" id="fileInput" style="display: none;">
-            </div>
-          </div>
-          
-          <!-- 密码输入 -->
-          <div class="form-group">
-            <label for="decryptPassword">用于解密Cookie的密码</label>
-            <input type="password" id="decryptPassword" placeholder="如果Cookie受加密保护，请输入解密密码（可选）">
+          <p class="form-hint" data-i18n="apiHint"></p>
+          <div style="margin-top:8px">
+            <button id="uploadBtn" class="btn" data-i18n="uploadApi">上传到 API</button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button id="cancelImportBtn" class="btn">取消</button>
-          <button id="confirmImportBtn" class="btn primary">导入</button>
+
+        <div class="setting-section">
+          <h3 data-i18n="dangerZone">危险操作</h3>
+          <button id="clearBtn" class="btn danger" data-i18n="clearSite">清除当前网站的 Cookie</button>
+          <p class="form-hint" data-i18n="clearSiteHint"></p>
+        </div>
+
+        <div class="setting-section">
+          <h3 data-i18n="about">关于</h3>
+          <p class="form-hint" id="aboutInfo"></p>
+          <button type="button" id="aboutRepoBtn" class="btn small" style="margin-top:8px" data-i18n="viewSource">在 GitHub 上查看源码</button>
         </div>
       </div>
-    </div>
-
-    <!-- 添加Cookie模态框 -->
-    <div id="addCookieModal" class="modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>添加 Cookie</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          
-          <!-- 名称 -->
-          <div class="form-group">
-            <label for="cookieName">名称（必填）</label>
-            <input type="text" id="cookieName" placeholder="请输入 Cookie 名称">
-            <div class="error-message" id="nameError"></div>
-          </div>
-          
-          <!-- 值 -->
-          <div class="form-group">
-            <label for="cookieValue">值（必填）</label>
-            <textarea id="cookieValueText" placeholder="请输入 Cookie 值"></textarea>
-            <div class="error-message" id="valueError"></div>
-          </div>
-          
-          <!-- 过期时间 -->
-          <div class="form-group">
-            <label for="cookieExpiration">过期时间</label>
-            <input type="datetime-local" id="cookieExpiration">
-            <div class="expiration-buttons">
-              <button type="button" id="clearExpiration">清除</button>
-              <button type="button" id="setToToday">今天</button>
-            </div>
-          </div>
-          
-          <!-- HttpOnly -->
-          <div class="form-group">
-            <label for="cookieHttpOnly">仅 HTTP 可见（HttpOnly）</label>
-            <select id="cookieHttpOnly">
-              <option value="true">是</option>
-              <option value="false">否</option>
-            </select>
-          </div>
-          
-          <!-- SameSite -->
-          <div class="form-group">
-            <label for="cookieSameSite">同站策略（SameSite）</label>
-            <select id="cookieSameSite">
-              <option value="no_restriction">不限制（SameSite=None）</option>
-              <option value="lax">宽松（Lax）</option>
-              <option value="strict">严格（Strict）</option>
-              <option value="unspecified">未指定（浏览器默认）</option>
-            </select>
-          </div>
-          
-          <!-- Secure -->
-          <div class="form-group">
-            <label for="cookieSecure">仅 HTTPS（Secure）</label>
-            <select id="cookieSecure">
-              <option value="false">否</option>
-              <option value="true">是</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button id="cancelAddCookieBtn" class="btn">取消</button>
-          <button id="confirmAddCookieBtn" class="btn primary" disabled>添加</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 删除确认模态框 -->
-    <div id="deleteConfirmModal" class="modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>删除 Cookie</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          <p>您要删除 Cookie 吗？</p>
-        </div>
-        <div class="modal-footer">
-          <button id="cancelDeleteBtn" class="btn">取消</button>
-          <button id="confirmDeleteBtn" class="btn danger">删除</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 编辑 Cookie 模态框 -->
-    <div id="editCookieModal" class="modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>编辑 Cookie</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          <p>您要编辑 Cookie 吗？</p>
-          
-          <!-- 名称 -->
-          <div class="form-group">
-            <label for="editCookieName">名称（必填）</label>
-            <input type="text" id="editCookieName" placeholder="请输入 Cookie 名称" disabled>
-          </div>
-          
-          <!-- 值 -->
-          <div class="form-group">
-            <label for="editCookieValue">值（必填）</label>
-            <textarea id="editCookieValue" placeholder="请输入 Cookie 值"></textarea>
-          </div>
-          
-          <!-- 过期时间 -->
-          <div class="form-group">
-            <label for="editCookieExpiration">过期时间</label>
-            <input type="datetime-local" id="editCookieExpiration">
-            <div class="expiration-buttons">
-              <button type="button" id="clearEditExpiration">清除</button>
-              <button type="button" id="setEditToToday">今天</button>
-            </div>
-          </div>
-          
-          <!-- 路径 -->
-          <div class="form-group">
-            <label for="editCookiePath">路径</label>
-            <input type="text" id="editCookiePath" placeholder="请输入 Cookie 路径" disabled>
-          </div>
-          
-          <!-- HttpOnly -->
-          <div class="form-group">
-            <label for="editCookieHttpOnly">仅 HTTP 可见（HttpOnly）</label>
-            <select id="editCookieHttpOnly">
-              <option value="true">是</option>
-              <option value="false">否</option>
-            </select>
-          </div>
-          
-          <!-- SameSite -->
-          <div class="form-group">
-            <label for="editCookieSameSite">同站策略（SameSite）</label>
-            <select id="editCookieSameSite">
-              <option value="no_restriction">不限制</option>
-              <option value="lax">宽松</option>
-              <option value="strict">严格</option>
-              <option value="unspecified">未指定</option>
-            </select>
-          </div>
-          
-          <!-- Secure -->
-          <div class="form-group">
-            <label for="editCookieSecure">仅 HTTPS（Secure）</label>
-            <select id="editCookieSecure">
-              <option value="false">否</option>
-              <option value="true">是</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button id="cancelEditCookieBtn" class="btn">取消</button>
-          <button id="confirmEditCookieBtn" class="btn primary">保存</button>
-        </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="close">关闭</button>
       </div>
     </div>
   </div>
+
+  <!-- 生成代码 -->
+  <div id="codeModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="codeTitle">生成请求代码</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="form-hint" data-i18n="codeHint" style="margin:0 0 10px"></p>
+        <div class="form-group">
+          <label for="codeUrl">URL</label>
+          <input id="codeUrl" type="text" spellcheck="false">
+        </div>
+        <div class="code-tabs" id="codeTabs">
+          <button type="button" class="code-tab active" data-lang="curl">cURL</button>
+          <button type="button" class="code-tab" data-lang="fetch">fetch</button>
+          <button type="button" class="code-tab" data-lang="python">Python</button>
+        </div>
+        <pre id="codeOutput" class="code-output"></pre>
+        <p class="form-hint" id="codeMeta"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="close">关闭</button>
+        <button id="copyCodeBtn" class="btn primary" data-i18n="copy">复制</button>
+      </div>
+    </div>
   </div>
 
+  <!-- 导出 -->
+  <div id="exportModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="exportTitle">导出 Cookie</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="form-hint" id="exportMeta" style="margin:0 0 10px"></p>
+        <button class="export-option" data-format="header">
+          <div class="eo-main">
+            <div class="eo-title">Header String</div>
+            <div class="eo-desc">name=value; name2=value2</div>
+          </div>
+        </button>
+        <button class="export-option" data-format="json">
+          <div class="eo-main">
+            <div class="eo-title">JSON</div>
+            <div class="eo-desc" data-i18n="exportJsonDesc"></div>
+          </div>
+        </button>
+        <button class="export-option" data-format="netscape">
+          <div class="eo-main">
+            <div class="eo-title">Netscape</div>
+            <div class="eo-desc" data-i18n="exportNetscapeDesc"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导入 -->
+  <div id="importModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="importTitle">导入 Cookie</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-mode">
+          <label class="radio-container">
+            <input type="radio" name="importMode" value="text" checked>
+            <span class="radio-checkmark"></span>
+            <span data-i18n="importText">使用文本</span>
+          </label>
+          <label class="radio-container">
+            <input type="radio" name="importMode" value="file">
+            <span class="radio-checkmark"></span>
+            <span data-i18n="importFile">使用文件</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="importUrl">URL</label>
+          <input type="text" id="importUrl" placeholder="https://example.com">
+        </div>
+
+        <div id="textImportArea" class="form-group">
+          <label for="cookieValue" data-i18n="importContent">Cookie 内容</label>
+          <textarea id="cookieValue" data-i18n-placeholder="importPlaceholder"></textarea>
+        </div>
+
+        <div id="fileImportArea" class="form-group" hidden>
+          <label data-i18n="selectFile">选择要导入的文件</label>
+          <div class="file-input-container">
+            <button id="selectFileBtn" class="btn small" data-i18n="selectFile">选择文件</button>
+            <span id="fileName" class="file-name" data-i18n="noFile">未选择任何文件</span>
+            <input type="file" id="fileInput" accept=".txt,.json" hidden>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0">
+          <label for="decryptPassword" data-i18n="decryptPassword">解密密码（可选）</label>
+          <input type="password" id="decryptPassword" data-i18n-placeholder="decryptPlaceholder">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="cancel">取消</button>
+        <button id="confirmImportBtn" class="btn primary" data-i18n="importBtn">导入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加 Cookie -->
+  <div id="addCookieModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="addTitle">添加 Cookie</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="cookieName" data-i18n="nameLabel">名称（必填）</label>
+          <input type="text" id="cookieName" data-i18n-placeholder="namePlaceholder">
+          <div class="error-message" id="nameError"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="cookieValueText" data-i18n="valueLabel">值（必填）</label>
+          <textarea id="cookieValueText" data-i18n-placeholder="valuePlaceholder"></textarea>
+          <div class="error-message" id="valueError"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="cookieExpiration" data-i18n="expiration">过期时间</label>
+          <input type="datetime-local" id="cookieExpiration">
+          <div class="expiration-buttons">
+            <button type="button" id="clearExpiration" data-i18n="clearBtnText">清除</button>
+            <button type="button" id="setToToday" data-i18n="nowBtnText">此刻</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cookieHttpOnly" data-i18n="httponlyLabel">仅 HTTP 可见（HttpOnly）</label>
+          <select id="cookieHttpOnly">
+            <option value="false" data-i18n="no">否</option>
+            <option value="true" data-i18n="yes">是</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cookieSameSite" data-i18n="samesiteLabel">同站策略（SameSite）</label>
+          <select id="cookieSameSite">
+            <option value="lax" data-i18n="samesiteLax">宽松（Lax）</option>
+            <option value="no_restriction" data-i18n="samesiteNone">不限制（None）</option>
+            <option value="strict" data-i18n="samesiteStrict">严格（Strict）</option>
+            <option value="unspecified" data-i18n="samesiteUnspecified">未指定（浏览器默认）</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0">
+          <label for="cookieSecure" data-i18n="secureLabel">仅 HTTPS（Secure）</label>
+          <select id="cookieSecure">
+            <option value="false" data-i18n="no">否</option>
+            <option value="true" data-i18n="yes">是</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="cancel">取消</button>
+        <button id="confirmAddCookieBtn" class="btn primary" disabled data-i18n="addCookie">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑 Cookie -->
+  <div id="editCookieModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="editTitle">编辑 Cookie</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="editCookieName" data-i18n="nameLabel">名称</label>
+          <input type="text" id="editCookieName" disabled>
+        </div>
+
+        <div class="form-group">
+          <label for="editCookieValue" data-i18n="valueLabel">值（必填）</label>
+          <textarea id="editCookieValue" data-i18n-placeholder="valuePlaceholder"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editCookieExpiration" data-i18n="expiration">过期时间</label>
+          <input type="datetime-local" id="editCookieExpiration">
+          <div class="expiration-buttons">
+            <button type="button" id="clearEditExpiration" data-i18n="clearBtnText">清除</button>
+            <button type="button" id="setEditToToday" data-i18n="nowBtnText">此刻</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editCookiePath" data-i18n="pathLabel">路径</label>
+          <input type="text" id="editCookiePath">
+        </div>
+
+        <div class="form-group">
+          <label for="editCookieHttpOnly" data-i18n="httponlyLabel">仅 HTTP 可见（HttpOnly）</label>
+          <select id="editCookieHttpOnly">
+            <option value="false" data-i18n="no">否</option>
+            <option value="true" data-i18n="yes">是</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editCookieSameSite" data-i18n="samesiteLabel">同站策略（SameSite）</label>
+          <select id="editCookieSameSite">
+            <option value="lax" data-i18n="samesiteLax">宽松（Lax）</option>
+            <option value="no_restriction" data-i18n="samesiteNone">不限制（None）</option>
+            <option value="strict" data-i18n="samesiteStrict">严格（Strict）</option>
+            <option value="unspecified" data-i18n="samesiteUnspecified">未指定（浏览器默认）</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0">
+          <label for="editCookieSecure" data-i18n="secureLabel">仅 HTTPS（Secure）</label>
+          <select id="editCookieSecure">
+            <option value="false" data-i18n="no">否</option>
+            <option value="true" data-i18n="yes">是</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="cancel">取消</button>
+        <button id="confirmEditCookieBtn" class="btn primary" data-i18n="save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认 -->
+  <div id="deleteConfirmModal" class="modal" hidden>
+    <div class="modal-content" style="max-width:380px">
+      <div class="modal-header">
+        <h2 data-i18n="deleteTitle">删除 Cookie</h2>
+        <button class="modal-close" data-close aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0" id="deleteMessage"></p>
+        <p class="form-hint" id="deleteTarget" style="font-family:var(--mono);word-break:break-all"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close data-i18n="cancel">取消</button>
+        <button id="confirmDeleteBtn" class="btn danger" data-i18n="delete">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastHost" class="toast-host"></div>
+
+  <script src="locales/zh-CN.js"></script>
+  <script src="locales/en.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

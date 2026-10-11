@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "CookieMaster Pro",
+    "description": "扩展名称"
+  },
+  "appDesc": {
+    "message": "一款简单而强大的 Cookie 管理器：在浏览器右侧边栏中查看、搜索、编辑与导入导出任意网站的 Cookie，支持批量操作、JWT 解析、安全风险提示与深浅色自动跟随。",
+    "description": "扩展描述"
+  }
+}
