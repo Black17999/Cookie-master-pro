@@ -1,4 +1,4 @@
-# CookieMaster Pro 🍪
+# <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
 
 [![English](https://img.shields.io/badge/English-README_en.md-blue.svg)](README_en.md)
 [![Version](https://img.shields.io/badge/version-3.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
@@ -159,37 +159,41 @@
 
 ## 🖼️ 界面预览
 
-<div style="text-align: center;">
+<div align="center">
 
-  <figure>
-    <img src="screenshots/main-interface.png" alt="主界面（浅色）" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>主界面 · 浅色模式</figcaption>
-  </figure>
+  <img src="screenshots/main-interface.png" alt="主界面（浅色）" width="420">
+  <br>
+  <sub>主界面 · 浅色模式</sub>
 
-  <figure>
-    <img src="screenshots/dark-mode.png" alt="深色模式" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>主界面 · 深色模式（自动跟随浏览器）</figcaption>
-  </figure>
+  <br><br>
 
-  <figure>
-    <img src="screenshots/side-panel.png" alt="侧边栏宽屏" style="width: 100%; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>拖宽侧边栏后自动切换为两列布局</figcaption>
-  </figure>
+  <img src="screenshots/dark-mode.png" alt="深色模式" width="420">
+  <br>
+  <sub>主界面 · 深色模式（自动跟随浏览器）</sub>
 
-  <figure>
-    <img src="screenshots/code.png" alt="生成请求代码" style="width: 100%; max-width: 460px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>一键生成 cURL / fetch / Python 请求代码</figcaption>
-  </figure>
+  <br><br>
 
-  <figure>
-    <img src="screenshots/settings.png" alt="设置面板" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>设置 · 外观模式可手动固定</figcaption>
-  </figure>
+  <img src="screenshots/side-panel.png" alt="侧边栏宽屏" width="600">
+  <br>
+  <sub>拖宽侧边栏后自动切换为两列布局</sub>
 
-  <figure>
-    <img src="screenshots/edit-interface.png" alt="编辑界面" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>编辑 Cookie</figcaption>
-  </figure>
+  <br><br>
+
+  <img src="screenshots/code.png" alt="生成请求代码" width="440">
+  <br>
+  <sub>一键生成 cURL / fetch / Python 请求代码</sub>
+
+  <br><br>
+
+  <img src="screenshots/settings.png" alt="设置面板" width="420">
+  <br>
+  <sub>设置 · 外观模式可手动固定</sub>
+
+  <br><br>
+
+  <img src="screenshots/edit-interface.png" alt="编辑界面" width="420">
+  <br>
+  <sub>编辑 Cookie</sub>
 
 </div>
 

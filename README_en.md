@@ -1,4 +1,4 @@
-# CookieMaster Pro 🍪
+# <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
 
 [![中文](https://img.shields.io/badge/中文-README.md-blue.svg)](README.md)
 [![Version](https://img.shields.io/badge/version-3.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
@@ -157,37 +157,41 @@ Open ⚙️, enter and save your API URL, then push the current list to it as a 
 
 ## 🖼️ Screenshots
 
-<div style="text-align: center;">
+<div align="center">
 
-  <figure>
-    <img src="screenshots/main-interface.png" alt="Main interface (light)" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Main interface · light mode</figcaption>
-  </figure>
+  <img src="screenshots/main-interface.png" alt="Main interface (light)" width="420">
+  <br>
+  <sub>Main interface · light mode</sub>
 
-  <figure>
-    <img src="screenshots/dark-mode.png" alt="Dark mode" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Main interface · dark mode (follows the browser)</figcaption>
-  </figure>
+  <br><br>
 
-  <figure>
-    <img src="screenshots/side-panel.png" alt="Wide side panel" style="width: 100%; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Widen the panel and it switches to a two-column layout</figcaption>
-  </figure>
+  <img src="screenshots/dark-mode.png" alt="Dark mode" width="420">
+  <br>
+  <sub>Main interface · dark mode (follows the browser)</sub>
 
-  <figure>
-    <img src="screenshots/code.png" alt="Generate request code" style="width: 100%; max-width: 460px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Generate cURL / fetch / Python request code</figcaption>
-  </figure>
+  <br><br>
 
-  <figure>
-    <img src="screenshots/settings.png" alt="Settings" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Settings · pin the appearance mode</figcaption>
-  </figure>
+  <img src="screenshots/side-panel.png" alt="Wide side panel" width="600">
+  <br>
+  <sub>Widen the panel and it switches to a two-column layout</sub>
 
-  <figure>
-    <img src="screenshots/edit-interface.png" alt="Edit dialog" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
-    <figcaption>Editing a cookie</figcaption>
-  </figure>
+  <br><br>
+
+  <img src="screenshots/code.png" alt="Generate request code" width="440">
+  <br>
+  <sub>Generate cURL / fetch / Python request code</sub>
+
+  <br><br>
+
+  <img src="screenshots/settings.png" alt="Settings" width="420">
+  <br>
+  <sub>Settings · pin the appearance mode</sub>
+
+  <br><br>
+
+  <img src="screenshots/edit-interface.png" alt="Edit dialog" width="420">
+  <br>
+  <sub>Editing a cookie</sub>
 
 </div>
 
