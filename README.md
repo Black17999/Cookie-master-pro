@@ -1,71 +1,247 @@
 # CookieMaster Pro 🍪
 
 [![English](https://img.shields.io/badge/English-README_en.md-blue.svg)](README_en.md)
+[![Version](https://img.shields.io/badge/version-3.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
+[![Chrome](https://img.shields.io/badge/Chrome-114%2B-blue.svg)](https://www.google.com/chrome/)
+[![Manifest](https://img.shields.io/badge/Manifest-V3-brightgreen.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-brightgreen.svg)](https://chrome.google.com/webstore)
 
-一款简单而强大的 Cookie 编辑器，可快速获取、查看和导出当前域名下的所有 Cookie。支持导出为多种格式（Header String、JSON、Netscape），可直接推送到远程 API，并允许在不离开当前标签页的情况下快速创建、编辑或删除 Cookie。完美提升 Cookie 管理效率，让开发与调试更加直观便捷。
+一款简单而强大的 Cookie 管理器：在浏览器**右侧边栏**中查看、搜索、编辑与导入导出任意网站的 Cookie。支持批量操作、请求代码生成、JWT 解析、安全风险提示，并可一键推送到远程 API。
+
+---
+
+## ✨ v3.0 全新升级
+
+| 更新 | 说明 |
+| --- | --- |
+| 🪟 **右侧边栏** | 点击图标在浏览器右侧展开面板，高度占满整个侧边，跨标签页保持打开，宽度可自由拖拽 |
+| 🌗 **深浅色自动跟随** | 默认随浏览器主题切换，也可在设置里手动固定为浅色或深色 |
+| 🔍 **跨站全局搜索** | 无需打开目标网站，即可搜索浏览器中**所有**网站的 Cookie |
+| ☑️ **批量操作** | 多选后批量复制、批量导出、批量删除 |
+| 💻 **请求代码生成** | 一键把 Cookie 转成 `cURL` / `fetch` / `Python requests` 代码 |
+| 🔑 **JWT 解析** | 自动识别 JWT 并解出签发时间、过期时间、主体等信息；URL 编码的值可一键解码 |
+| 🛡️ **安全审计** | 主动标出敏感 Cookie 未加 `Secure`、`SameSite=None` 无 `Secure`、长期不过期等风险 |
+| ↩️ **删除可撤销** | 删除后 6 秒内可一键恢复，误删不再不可逆 |
+| 🌐 **中英双语** | 按浏览器语言自动切换界面语言 |
+| ⌨️ **键盘操作** | `↑↓` 选择、`Enter` 编辑、`Delete` 删除、`Ctrl/Cmd+F` 搜索 |
+| 🗂️ **域名分组** | 全局视图下按域名折叠/展开 |
+| 🍪 **全新图标** | 矢量重绘，透明背景，在 16px 工具栏尺寸下依然清晰可辨 |
+
+---
 
 ## 🌟 主要特性
 
-- **Cookie 获取**: 自动获取当前网站及其相关域名的所有 Cookie
-- **多种导出格式**: 支持导出为 Header String、JSON 和 Netscape 格式
-- **远程推送**: 可将 Cookie 数据直接推送到指定的远程 API
-- **Cookie 管理**: 支持创建、编辑和删除 Cookie
-- **敏感识别**: 自动识别并高亮显示敏感 Cookie（如 session、token 等）
-- **导入功能**: 支持从文本或文件导入 Cookie
-- **实时同步**: Cookie 变化时自动刷新显示
+### 浏览与检索
+
+- **🪟 侧边栏常驻** — 一边浏览网页一边管理 Cookie，不受弹窗尺寸限制
+- **🔍 全局搜索** — 跨站点检索任意网站的 Cookie，支持域名简写（输入 `github` 命中 `github.com`）
+- **🗂️ 域名分组** — 全局视图下按域名折叠，域名多时依然清爽
+- **🏷️ 敏感识别** — 自动标记 session、token、auth 等敏感 Cookie 并用颜色区分
+- **📊 属性可视化** — HttpOnly / Secure / SameSite / 过期时间以徽章形式直观呈现
+
+### 提取与流转
+
+- **💻 代码生成** — 直接产出 `cURL` / `fetch` / `Python requests` 三种可运行代码
+- **📤 多种导出格式** — Header String / JSON / Netscape，一键下载
+- **☑️ 批量提取** — 多选后批量复制、批量导出
+- **📥 智能导入** — 从文本或文件导入，自动识别 JSON、Header String、Netscape 三种格式
+- **🌐 远程推送** — 将 Cookie 数据 POST 到指定 API
+
+### 分析与安全
+
+- **🔑 JWT 解析** — 解出载荷中的签发时间、过期时间、主体等字段
+- **🔤 编码解码** — URL 编码的值一键还原为可读文本
+- **🛡️ 风险审计** — 提示敏感 Cookie 的安全配置缺陷，支持"仅看风险项"筛选
+
+### 编辑与管理
+
+- **✏️ 完整增删改查** — 创建、编辑、删除任意域名下的 Cookie，无需切换标签页
+- **↩️ 撤销删除** — 误删后 6 秒内可恢复
+- **⚡ 实时同步** — Cookie 变化时列表自动刷新（带渲染去重，不会闪烁跳动）
+- **🧭 跟随标签页** — 侧边栏模式下切换标签页会自动跳到新网站
+
+---
 
 ## 📦 安装方法
 
-### 从 Chrome Web Store 安装（推荐）
+### 从 Chrome 网上应用店安装（推荐）
 
-1. 访问 [Chrome 网上应用店]()
-2. 搜索 "CookieMaster Pro"
-3. 点击 "添加至 Chrome" 按钮
+1. 访问 [Chrome 网上应用店](https://chrome.google.com/webstore)
+2. 搜索 **CookieMaster Pro**
+3. 点击「添加至 Chrome」
 
 ### 本地安装（开发者模式）
 
 1. 克隆或下载本仓库
-2. 打开 Chrome 浏览器，访问 `chrome://extensions/`
-3. 开启右上角的"开发者模式"
-4. 点击"加载已解压的扩展程序"
-5. 选择本项目文件夹
+
+   ```bash
+   git clone https://github.com/Black17999/Cookie-master-pro.git
+   ```
+
+2. 打开 Chrome，访问 `chrome://extensions/`
+3. 开启右上角的 **开发者模式**
+4. 点击 **加载已解压的扩展程序**，选择本项目文件夹
+
+> **浏览器要求**：侧边栏模式需要 **Chrome 114 或更高版本**。
+> 在更早的版本中，扩展会自动回退为传统的工具栏弹窗模式。
+
+---
 
 ## 🚀 使用说明
 
-1. 点击浏览器工具栏中的 CookieMaster Pro 图标
-2. 扩展会自动加载当前网站的 Cookie 信息
-3. 使用以下功能：
-   - **复制 Header**: 复制所有 Cookie 为 Header 格式
-   - **导出**: 选择不同格式导出 Cookie 数据
-   - **上传到远程 API**: 将 Cookie 数据发送到指定 API
-   - **添加 Cookie**: 创建新的 Cookie
-   - **导入 Cookie**: 从文本或文件导入 Cookie
-   - **编辑/删除**: 点击 Cookie 项可进行编辑或删除操作
+### 打开面板
 
-## 🖼️ 插件界面
+点击工具栏图标，面板从**浏览器右侧**展开。点击侧边栏顶部的图钉即可固定，切换标签页时保持打开。
 
+### 切换数据范围
+
+- **当前网站** — 当前标签页域名及其所有子域的 Cookie
+- **全部 Cookie** — 浏览器中所有网站的 Cookie
+
+### 搜索
+
+搜索框对当前范围实时过滤：
+
+| 输入 | 匹配结果 |
+| --- | --- |
+| `github.com` | 精确命中该域名及其子域 |
+| `github` | 命中所有包含该关键词的域名 |
+| `session` | 命中名称或值中包含该关键词的 Cookie |
+
+结果按相关度排序，命中的文字会高亮显示。
+
+### 批量操作
+
+点击工具条上的「选择」进入多选模式：
+
+1. 勾选需要的条目，或点「全选」
+2. 底部切换为批量操作栏：**复制** / **导出** / **删除**
+3. 点「退出」返回常规模式
+
+### 生成请求代码
+
+点击底部「生成代码」，选择 `cURL` / `fetch` / `Python` 标签页，代码会随选择实时生成，点「复制」即可使用。
+
+### JWT 与编码值解析
+
+点击条目中的 Cookie 值区域展开，如果该值是一个 JWT，会自动解析出载荷；如果包含 URL 编码，会同时给出解码后的明文。
+
+### 安全风险提示
+
+扩展会自动审计每条 Cookie 并标出风险，例如：
+
+- 敏感 Cookie 未启用 `Secure`（可能在明文 HTTP 中被窃取）
+- `SameSite=None` 但未启用 `Secure`（浏览器会拒绝写入）
+- 高权限 Cookie 有效期超过 180 天，或没有设置过期时间
+- 敏感 Cookie 未启用 `HttpOnly`（可被页面脚本读取）
+
+点工具条上的「仅风险项」可以只看有问题的条目。
+
+### 快捷键
+
+| 按键 | 作用 |
+| --- | --- |
+| `Ctrl / Cmd + F` | 聚焦搜索框 |
+| `↑` `↓` | 上下选择条目 |
+| `Enter` | 编辑选中条目 |
+| `Delete` | 删除选中条目 |
+| `Esc` | 关闭弹窗 / 退出多选 |
+
+### 外观模式
+
+面板默认**跟随浏览器主题**。想固定下来：点击右上角 ⚙️ → **外观** → 选择「跟随系统 / 浅色 / 深色」。
+
+### 远程 API
+
+点击右上角 ⚙️，填写 API 地址并保存后，即可把当前列表推送到该地址（JSON POST）。
+
+---
+
+## 🖼️ 界面预览
 
 <div style="text-align: center;">
+
   <figure>
-    <img src="screenshots/main-interface.png" alt="CookieMaster Pro 主界面" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
-    <figcaption>CookieMaster Pro 主界面</figcaption>
+    <img src="screenshots/main-interface.png" alt="主界面（浅色）" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>主界面 · 浅色模式</figcaption>
   </figure>
-  
+
   <figure>
-    <img src="screenshots/edit-interface.png" alt="CookieMaster Pro 编辑界面" style="width: 100%; max-width: 600px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
-    <figcaption>CookieMaster Pro 编辑界面</figcaption>
+    <img src="screenshots/dark-mode.png" alt="深色模式" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>主界面 · 深色模式（自动跟随浏览器）</figcaption>
   </figure>
+
+  <figure>
+    <img src="screenshots/side-panel.png" alt="侧边栏宽屏" style="width: 100%; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>拖宽侧边栏后自动切换为两列布局</figcaption>
+  </figure>
+
+  <figure>
+    <img src="screenshots/code.png" alt="生成请求代码" style="width: 100%; max-width: 460px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>一键生成 cURL / fetch / Python 请求代码</figcaption>
+  </figure>
+
+  <figure>
+    <img src="screenshots/settings.png" alt="设置面板" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>设置 · 外观模式可手动固定</figcaption>
+  </figure>
+
+  <figure>
+    <img src="screenshots/edit-interface.png" alt="编辑界面" style="width: 100%; max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-radius: 10px;">
+    <figcaption>编辑 Cookie</figcaption>
+  </figure>
+
 </div>
+
+---
 
 ## 🔐 权限说明
 
-- `cookies`: 读取和修改 Cookie
-- `tabs`: 获取当前标签页信息
-- `clipboardWrite`: 复制内容到剪贴板
-- `storage`: 保存扩展设置
-- `<all_urls>`: 访问所有网站以获取 Cookie
+| 权限 | 用途 |
+| --- | --- |
+| `cookies` | 读取和修改 Cookie |
+| `tabs` | 获取当前标签页的地址，用于定位当前网站 |
+| `clipboardWrite` | 复制 Cookie 到剪贴板 |
+| `storage` | 保存外观偏好、远程 API 地址等设置 |
+| `sidePanel` | 在浏览器右侧显示侧边栏面板 |
+| `<all_urls>` | 访问任意网站的 Cookie（全局搜索与跨站管理所必需） |
+
+## 🛡️ 隐私
+
+**本扩展纯本地运行，不收集、不上传、不分享任何数据。**
+
+Cookie 数据仅在面板打开时于内存中处理，关闭即释放。设置项通过 Chrome 官方的 `chrome.storage.sync` 保存在你自己的浏览器账号中。
+
+唯一的对外请求是你在设置中**主动配置**的远程 API 地址。
+
+完整说明请见 [隐私政策](PRIVACY.md)。
+
+---
+
+## 🗂️ 项目结构
+
+```
+CookieMaster Pro/
+├── manifest.json            # 扩展清单（MV3）
+├── background.js            # 后台服务，负责挂接侧边栏行为
+├── popup.html               # 界面结构（侧边栏与弹窗共用）
+├── popup.js                 # 界面逻辑（侧边栏与弹窗共用）
+├── style.css                # 样式表（设计令牌 + 深浅色）
+├── locales/
+│   ├── zh-CN.js             # 界面中文文案
+│   └── en.js                # 界面英文文案
+├── _locales/                # 供 Chrome 商店展示的名称与描述
+│   ├── zh_CN/messages.json
+│   └── en/messages.json
+├── icon.svg                 # 图标源文件（矢量）
+├── icon-16/32/48/128.png    # 各尺寸图标（透明背景）
+├── PRIVACY.md               # 隐私政策
+└── screenshots/             # 文档截图
+```
+
+> 界面文件同时服务于侧边栏与弹窗两种宿主：运行时自动识别所在环境并适配宽度。
+
+---
 
 ## 📄 许可证
 
@@ -77,6 +253,4 @@
 
 ## 📧 联系方式
 
-如有问题或建议，请通过以下方式联系：
-
-- 提交 [Issue](https://github.com/your-username/cookie-exporter/issues)
+如有问题或建议，请提交 [Issue](https://github.com/Black17999/Cookie-master-pro/issues)。
