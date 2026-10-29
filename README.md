@@ -1,16 +1,24 @@
-# <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
+<div align="center">
 
-[![English](https://img.shields.io/badge/English-README_en.md-blue.svg)](README_en.md)
-[![Version](https://img.shields.io/badge/version-3.1.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
-[![Chrome](https://img.shields.io/badge/Chrome-114%2B-blue.svg)](https://www.google.com/chrome/)
-[![Manifest](https://img.shields.io/badge/Manifest-V3-brightgreen.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<img src="icon-128.png" width="80" alt="CookieMaster Pro">
 
-一款简单而强大的 Cookie 管理器：在浏览器**右侧边栏**中查看、搜索、编辑与导入导出任意网站的 Cookie。支持批量操作、请求代码生成、JWT 解析、安全风险提示，并可一键推送到远程 API。
+<h1>CookieMaster Pro</h1>
+
+<p>一款简单而强大的 Cookie 管理器 —— 在浏览器<strong>右侧边栏</strong>中查看、搜索、编辑与导入导出任意网站的 Cookie。</p>
+
+<p>
+  <a href="README_en.md"><img src="https://img.shields.io/badge/English-README_en.md-blue.svg" alt="English"></a>
+  <a href="https://github.com/Black17999/Cookie-master-pro/releases"><img src="https://img.shields.io/badge/version-3.1.0-orange.svg" alt="Version"></a>
+  <a href="https://www.google.com/chrome/"><img src="https://img.shields.io/badge/Chrome-114%2B-blue.svg" alt="Chrome 114+"></a>
+  <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-brightgreen.svg" alt="Manifest V3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+</p>
+
+</div>
 
 ---
 
-## ✨ v3.0 全新升级
+## ✨ 主要更新
 
 | 更新 | 说明 |
 | --- | --- |
@@ -21,11 +29,11 @@
 | 💻 **请求代码生成** | 一键把 Cookie 转成 `cURL` / `fetch` / `Python requests` 代码 |
 | 🔑 **JWT 解析** | 自动识别 JWT 并解出签发时间、过期时间、主体等信息；URL 编码的值可一键解码 |
 | 🛡️ **安全审计** | 主动标出敏感 Cookie 未加 `Secure`、`SameSite=None` 无 `Secure`、长期不过期等风险 |
-| 🔎 **作用域可见** | 卡片直接标出 `domain/path`，同名 Cookie 会高亮作用域——不再"和 F12 对不上" |
+| 🔎 **作用域可见** | 卡片直接标出 `domain/path`，同名 Cookie 会高亮作用域——不再「和 F12 对不上」 |
 | ↩️ **删除可撤销** | 删除后 6 秒内可一键恢复，误删不再不可逆 |
 | 🌐 **中英双语** | 按浏览器语言自动切换界面语言 |
 | ⌨️ **键盘操作** | `↑↓` 选择、`Enter` 编辑、`Delete` 删除、`Ctrl/Cmd+F` 搜索 |
-| 🗂️ **域名分组** | 全局视图下按域名折叠/展开 |
+| 🗂️ **域名分组** | 全局视图下按域名折叠 / 展开 |
 | 🍪 **全新图标** | 矢量重绘，透明背景，在 16px 工具栏尺寸下依然清晰可辨 |
 
 ---
@@ -53,7 +61,7 @@
 
 - **🔑 JWT 解析** — 解出载荷中的签发时间、过期时间、主体等字段
 - **🔤 编码解码** — URL 编码的值一键还原为可读文本
-- **🛡️ 风险审计** — 提示敏感 Cookie 的安全配置缺陷，支持"仅看风险项"筛选
+- **🛡️ 风险审计** — 提示敏感 Cookie 的安全配置缺陷，支持「仅看风险项」筛选
 
 ### 编辑与管理
 
@@ -157,11 +165,10 @@ git clone https://github.com/Black17999/Cookie-master-pro.git
 
 每张卡片都会标出这条 Cookie 的作用域（`domain` + `path`）。如果同一个名字在列表里出现多条，作用域会高亮成强调色，鼠标悬停能看到完整说明。
 
-这一步是为了避免一个常见的困惑：**同名 Cookie 可以存在多条，只是 path 或 domain 不同，值可能完全不一样**。Chrome DevTools 的 Application → Cookies 按 Domain / Path 分组显示，你对比时如果拿的是另一条，就会觉得"插件看到的值不对"。另外两种常见情况：
+这一步是为了避免一个常见的困惑：**同名 Cookie 可以存在多条，只是 path 或 domain 不同，值可能完全不一样**。Chrome DevTools 的 Application → Cookies 按 Domain / Path 分组显示，你对比时如果拿的是另一条，就会觉得「插件看到的值不对」。另外两种常见情况：
 
 - 带 `Partitioned` 标记的分区 Cookie（CHIPS）：同名但在不同顶级站点下值不同，卡片上会显示 `Partitioned` 徽章；
 - `HttpOnly` 的 Cookie 在控制台的 `document.cookie` 里根本看不到，只有在 DevTools 的 Application → Cookies 里查。
-
 
 ### Cookie 同步（远程 API）
 
@@ -180,39 +187,39 @@ git clone https://github.com/Black17999/Cookie-master-pro.git
 
 <div align="center">
 
-  <img src="screenshots/main-interface.png" alt="主界面（浅色）" width="420">
-  <br>
-  <sub>主界面 · 浅色模式</sub>
+<img src="screenshots/main-interface.png" alt="主界面（浅色）" width="420">
+<br>
+<sub>主界面 · 浅色模式</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/dark-mode.png" alt="深色模式" width="420">
-  <br>
-  <sub>主界面 · 深色模式</sub>
+<img src="screenshots/dark-mode.png" alt="深色模式" width="420">
+<br>
+<sub>主界面 · 深色模式</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/side-panel.png" alt="侧边栏宽屏" width="600">
-  <br>
-  <sub>拖宽侧边栏后自动切换为两列布局</sub>
+<img src="screenshots/side-panel.png" alt="侧边栏宽屏" width="600">
+<br>
+<sub>拖宽侧边栏后自动切换为两列布局</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/code.png" alt="生成请求代码" width="440">
-  <br>
-  <sub>一键生成 cURL / fetch / Python 请求代码</sub>
+<img src="screenshots/code.png" alt="生成请求代码" width="440">
+<br>
+<sub>一键生成 cURL / fetch / Python 请求代码</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/settings.png" alt="设置面板" width="420">
-  <br>
-  <sub>设置 · 外观切换、Cookie 同步、危险操作</sub>
+<img src="screenshots/settings.png" alt="设置面板" width="420">
+<br>
+<sub>设置 · 外观切换、Cookie 同步、危险操作</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/edit-interface.png" alt="编辑界面" width="420">
-  <br>
-  <sub>编辑 Cookie</sub>
+<img src="screenshots/edit-interface.png" alt="编辑界面" width="420">
+<br>
+<sub>编辑 Cookie</sub>
 
 </div>
 
@@ -228,6 +235,8 @@ git clone https://github.com/Black17999/Cookie-master-pro.git
 | `storage` | 保存外观偏好、远程 API 地址等设置 |
 | `sidePanel` | 在浏览器右侧显示侧边栏面板 |
 | `<all_urls>` | 访问任意网站的 Cookie（全局搜索与跨站管理所必需） |
+
+---
 
 ## 🛡️ 隐私
 

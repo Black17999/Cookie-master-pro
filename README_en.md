@@ -1,16 +1,24 @@
-# <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
+<div align="center">
 
-[![中文](https://img.shields.io/badge/中文-README.md-blue.svg)](README.md)
-[![Version](https://img.shields.io/badge/version-3.1.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
-[![Chrome](https://img.shields.io/badge/Chrome-114%2B-blue.svg)](https://www.google.com/chrome/)
-[![Manifest](https://img.shields.io/badge/Manifest-V3-brightgreen.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<img src="icon-128.png" width="80" alt="CookieMaster Pro">
 
-A simple yet powerful cookie manager that lives in your browser's **side panel**. View, search, edit, import and export cookies from any website — with batch operations, request code generation, JWT decoding and security auditing.
+<h1>CookieMaster Pro</h1>
+
+<p>A simple yet powerful cookie manager that lives in your browser's <strong>side panel</strong>. View, search, edit, import and export cookies from any website — with batch operations, request code generation, JWT decoding and security auditing.</p>
+
+<p>
+  <a href="README.md"><img src="https://img.shields.io/badge/中文-README.md-blue.svg" alt="中文"></a>
+  <a href="https://github.com/Black17999/Cookie-master-pro/releases"><img src="https://img.shields.io/badge/version-3.1.0-orange.svg" alt="Version"></a>
+  <a href="https://www.google.com/chrome/"><img src="https://img.shields.io/badge/Chrome-114%2B-blue.svg" alt="Chrome 114+"></a>
+  <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-brightgreen.svg" alt="Manifest V3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+</p>
+
+</div>
 
 ---
 
-## ✨ What's New in v3.0
+## ✨ Highlights
 
 | Update | Description |
 | --- | --- |
@@ -151,7 +159,7 @@ Use **Risky only** in the toolbar to show just those.
 
 The panel follows your browser theme by default. The leftmost icon in the header cycles **Auto → Light → Dark** in one click, and the icon always reflects the current mode (monitor / sun / moon). The same switch also lives in Settings.
 
-### Scope, and “why does it differ from F12?”
+### Scope, and "why does it differ from F12?"
 
 Every card shows the cookie's scope (`domain` + `path`). If the same name appears more than once, the scope is highlighted in the accent colour and the tooltip spells it out.
 
@@ -160,7 +168,6 @@ This exists to kill a common confusion: **several cookies can share a name and d
 - Partitioned cookies (CHIPS) reuse the name but hold different values per top-level site; they carry a `Partitioned` badge;
 - `HttpOnly` cookies never appear in `document.cookie` — only DevTools → Application → Cookies lists them.
 
-
 ### Cookie sync (remote API)
 
 Open ⚙️, enter and save an endpoint, then push the current list to it as a JSON POST — handy for moving a signed-in session around.
@@ -168,9 +175,9 @@ Open ⚙️, enter and save an endpoint, then push the current list to it as a J
 Safety rails:
 
 - HTTPS only (`localhost` / `127.0.0.1` excepted);
-- A live “Data will be sent to: <host>” line under the input;
+- A live "Data will be sent to: <host>" line under the input;
 - A confirmation dialog naming the cookie count and target host before anything leaves;
-- A “Test connection” button that probes with a `HEAD` request.
+- A "Test connection" button that probes with a `HEAD` request.
 
 ---
 
@@ -178,39 +185,39 @@ Safety rails:
 
 <div align="center">
 
-  <img src="screenshots/main-interface.png" alt="Main interface (light)" width="420">
-  <br>
-  <sub>Main interface · light mode</sub>
+<img src="screenshots/main-interface.png" alt="Main interface (light)" width="420">
+<br>
+<sub>Main interface · light mode</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/dark-mode.png" alt="Dark mode" width="420">
-  <br>
-  <sub>Main interface · dark mode</sub>
+<img src="screenshots/dark-mode.png" alt="Dark mode" width="420">
+<br>
+<sub>Main interface · dark mode</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/side-panel.png" alt="Wide side panel" width="600">
-  <br>
-  <sub>Widen the panel and it switches to a two-column layout</sub>
+<img src="screenshots/side-panel.png" alt="Wide side panel" width="600">
+<br>
+<sub>Widen the panel and it switches to a two-column layout</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/code.png" alt="Generate request code" width="440">
-  <br>
-  <sub>Generate cURL / fetch / Python request code</sub>
+<img src="screenshots/code.png" alt="Generate request code" width="440">
+<br>
+<sub>Generate cURL / fetch / Python request code</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/settings.png" alt="Settings" width="420">
-  <br>
-  <sub>Settings · appearance, cookie sync and danger zone</sub>
+<img src="screenshots/settings.png" alt="Settings" width="420">
+<br>
+<sub>Settings · appearance, cookie sync and danger zone</sub>
 
-  <br><br>
+<br><br>
 
-  <img src="screenshots/edit-interface.png" alt="Edit dialog" width="420">
-  <br>
-  <sub>Editing a cookie</sub>
+<img src="screenshots/edit-interface.png" alt="Edit dialog" width="420">
+<br>
+<sub>Editing a cookie</sub>
 
 </div>
 
@@ -226,6 +233,8 @@ Safety rails:
 | `storage` | Store settings such as the remote API URL |
 | `sidePanel` | Display the side panel on the right of the browser |
 | `<all_urls>` | Access cookies of any website (required for global search and cross-site management) |
+
+---
 
 ## 🛡️ Privacy
 
