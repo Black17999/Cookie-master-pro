@@ -1,7 +1,7 @@
 # <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
 
 [![English](https://img.shields.io/badge/English-README_en.md-blue.svg)](README_en.md)
-[![Version](https://img.shields.io/badge/version-3.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
+[![Version](https://img.shields.io/badge/version-3.1.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
 [![Chrome](https://img.shields.io/badge/Chrome-114%2B-blue.svg)](https://www.google.com/chrome/)
 [![Manifest](https://img.shields.io/badge/Manifest-V3-brightgreen.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -66,26 +66,26 @@
 
 ## 📦 安装方法
 
-### 从 Chrome 网上应用店安装（推荐）
+### 本地安装（推荐）
 
-1. 访问 [Chrome 网上应用店](https://chrome.google.com/webstore)
-2. 搜索 **CookieMaster Pro**
-3. 点击「添加至 Chrome」
+1. 打开 [Releases 页面](https://github.com/Black17999/Cookie-master-pro/releases)，下载最新的 `CookieMaster.Pro-x.x.zip`
+2. 解压到一个**固定的文件夹**（别删，Chrome 会一直从这里加载）
+3. 打开 Chrome，访问 `chrome://extensions/`
+4. 开启右上角的 **开发者模式**
+5. 点击 **加载已解压的扩展程序**，选择解压出来的文件夹
 
-### 本地安装（开发者模式）
+也可以用 git 克隆源码：
 
-1. 克隆或下载本仓库
-
-   ```bash
-   git clone https://github.com/Black17999/Cookie-master-pro.git
-   ```
-
-2. 打开 Chrome，访问 `chrome://extensions/`
-3. 开启右上角的 **开发者模式**
-4. 点击 **加载已解压的扩展程序**，选择本项目文件夹
+```bash
+git clone https://github.com/Black17999/Cookie-master-pro.git
+```
 
 > **浏览器要求**：侧边栏模式需要 **Chrome 114 或更高版本**。
 > 在更早的版本中，扩展会自动回退为传统的工具栏弹窗模式。
+
+### 从 Chrome 网上应用店安装
+
+> 🚧 **暂未上架。** 完成开发者账号验证后会上架，届时更新这里。
 
 ---
 

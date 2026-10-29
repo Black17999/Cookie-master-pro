@@ -1,7 +1,7 @@
 # <img src="icon-128.png" width="36" alt="CookieMaster Pro"> CookieMaster Pro
 
 [![中文](https://img.shields.io/badge/中文-README.md-blue.svg)](README.md)
-[![Version](https://img.shields.io/badge/version-3.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
+[![Version](https://img.shields.io/badge/version-3.1.0-orange.svg)](https://github.com/Black17999/Cookie-master-pro/releases)
 [![Chrome](https://img.shields.io/badge/Chrome-114%2B-blue.svg)](https://www.google.com/chrome/)
 [![Manifest](https://img.shields.io/badge/Manifest-V3-brightgreen.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -66,26 +66,26 @@ A simple yet powerful cookie manager that lives in your browser's **side panel**
 
 ## 📦 Installation
 
-### From the Chrome Web Store (Recommended)
+### Local install (Recommended)
 
-1. Visit the [Chrome Web Store](https://chrome.google.com/webstore)
-2. Search for **CookieMaster Pro**
-3. Click **Add to Chrome**
+1. Open the [Releases page](https://github.com/Black17999/Cookie-master-pro/releases) and download the latest `CookieMaster.Pro-x.x.zip`
+2. Extract it to a **permanent folder** (don't delete it — Chrome loads the extension from there every time)
+3. Open Chrome and go to `chrome://extensions/`
+4. Enable **Developer mode** in the top right corner
+5. Click **Load unpacked** and select the extracted folder
 
-### Local Installation (Developer Mode)
+You can also clone the source instead:
 
-1. Clone or download this repository
-
-   ```bash
-   git clone https://github.com/Black17999/Cookie-master-pro.git
-   ```
-
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable **Developer mode**
-4. Click **Load unpacked** and select this project folder
+```bash
+git clone https://github.com/Black17999/Cookie-master-pro.git
+```
 
 > **Requirement**: Side panel mode requires **Chrome 114 or later**.
 > On older versions the extension falls back to the classic toolbar popup.
+
+### From the Chrome Web Store
+
+> 🚧 **Not published yet.** It will be listed here once developer account verification is complete.
 
 ---
 
