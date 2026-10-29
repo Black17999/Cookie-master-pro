@@ -15,12 +15,25 @@
   <div id="app" class="app" hidden>
     <header class="app-bar">
       <div class="brand">
-        <img src="icon-32.png" alt="" class="brand-icon">
+        <span class="brand-mark"><img src="icon-32.png" alt="" class="brand-icon"></span>
         <div class="brand-text">
           <h1 data-i18n="appName">CookieMaster Pro</h1>
           <p id="siteInfo" class="brand-sub">—</p>
         </div>
       </div>
+      <button id="themeBtn" class="icon-btn theme-btn" data-theme-mode="auto" aria-label="外观">
+        <svg class="ti ti-auto" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="3.5" width="19" height="13" rx="2"></rect>
+          <path d="M8.5 20.5h7M12 16.5v4"></path>
+        </svg>
+        <svg class="ti ti-light" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"></circle>
+          <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"></path>
+        </svg>
+        <svg class="ti ti-dark" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 14.4A8.6 8.6 0 1 1 9.6 3.5a6.9 6.9 0 0 0 10.9 10.9z"></path>
+        </svg>
+      </button>
       <button id="githubBtn" class="icon-btn" data-i18n-title="githubRepo" aria-label="GitHub">
         <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
@@ -34,7 +47,7 @@
       </button>
     </header>
 
-    <nav class="tabs">
+    <nav class="tabs" id="tabsNav">
       <button id="tabCurrent" class="tab active" data-tab="current">
         <span data-i18n="tabCurrent">当前网站</span>
         <span id="countCurrent" class="tab-count">0</span>
@@ -43,6 +56,7 @@
         <span data-i18n="tabAll">全部 Cookie</span>
         <span id="countAll" class="tab-count">0</span>
       </button>
+      <span class="tab-indicator" id="tabIndicator" aria-hidden="true"></span>
     </nav>
 
     <div class="search-bar">
@@ -60,7 +74,7 @@
       <span id="listMeta" class="list-meta">—</span>
       <div class="toolbar-actions">
         <button id="sortBtn" class="chip" data-i18n="sortPriority">敏感度优先</button>
-        <button id="filterBtn" class="chip">全部</button>
+        <button id="filterBtn" class="chip" data-i18n="filterAll">全部</button>
         <button id="selectBtn" class="chip" data-i18n="enterSelection">选择</button>
       </div>
     </div>
@@ -68,16 +82,24 @@
     <main class="content" id="content">
       <ul id="cookieList" class="cookie-list"></ul>
       <div id="emptyState" class="empty-state" hidden>
+        <svg class="empty-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 3v9h9"></path>
+          <circle cx="9" cy="9.5" r="1" fill="currentColor" stroke="none"></circle>
+          <circle cx="14.5" cy="14" r="1" fill="currentColor" stroke="none"></circle>
+          <circle cx="8.5" cy="15" r="1" fill="currentColor" stroke="none"></circle>
+        </svg>
         <div class="empty-title" id="emptyTitle">—</div>
         <div class="empty-desc" id="emptyDesc">—</div>
       </div>
     </main>
 
+    <!-- 按使用频率排序：导出 / 生成代码是高频动作，添加反而很少用，放到最右并降级 -->
     <footer class="action-bar" id="normalActions">
-      <button id="addCookieBtn" class="btn primary grow" data-i18n="addCookie">＋ 添加</button>
+      <button id="exportBtn" class="btn primary grow" data-i18n="exportBtn">导出</button>
       <button id="codeBtn" class="btn" data-i18n="generateCode">代码</button>
-      <button id="exportBtn" class="btn" data-i18n="exportBtn">导出</button>
       <button id="importBtn" class="btn" data-i18n="importBtn">导入</button>
+      <button id="addCookieBtn" class="btn subtle" data-i18n="addCookie">＋ 添加</button>
     </footer>
 
     <footer class="action-bar" id="batchActions" hidden>
@@ -99,36 +121,77 @@
       <div class="modal-body">
         <div class="setting-section">
           <h3 data-i18n="appearance">外观</h3>
-          <div class="theme-options" id="themeOptions">
-            <button type="button" class="theme-option active" data-theme="auto" data-i18n="themeAuto">跟随系统</button>
-            <button type="button" class="theme-option" data-theme="light" data-i18n="themeLight">浅色</button>
-            <button type="button" class="theme-option" data-theme="dark" data-i18n="themeDark">深色</button>
-          </div>
-          <p class="form-hint" data-i18n="themeHint"></p>
-        </div>
-
-        <div class="setting-section">
-          <h3 data-i18n="remoteApi">远程 API</h3>
-          <div class="setting-row">
-            <input id="apiInput" type="text" placeholder="https://your-server.com/upload-cookie">
-            <button id="saveApiBtn" class="btn" data-i18n="save">保存</button>
-          </div>
-          <p class="form-hint" data-i18n="apiHint"></p>
-          <div style="margin-top:8px">
-            <button id="uploadBtn" class="btn" data-i18n="uploadApi">上传到 API</button>
+          <div class="setting-card">
+            <div class="setting-item">
+              <div class="setting-item-main">
+                <span class="setting-item-title" data-i18n="themeRowTitle">主题</span>
+                <span class="setting-item-hint" id="themeStateText"></span>
+              </div>
+              <button type="button" id="themeCycleBtn" class="btn subtle small" data-i18n="themeSwitch">切换</button>
+            </div>
           </div>
         </div>
 
         <div class="setting-section">
+          <h3 data-i18n="remoteApi">Cookie 同步（远程 API）</h3>
+          <div class="setting-card">
+            <div class="setting-item column">
+              <div class="setting-item-main">
+                <span class="setting-item-title" data-i18n="apiEndpoint">目标地址</span>
+                <span class="setting-item-hint" data-i18n="apiEndpointHint">仅接受 HTTPS，本机 localhost 例外</span>
+              </div>
+              <div class="setting-row">
+                <input id="apiInput" type="url" spellcheck="false" placeholder="https://your-server.com/upload-cookie">
+                <button id="saveApiBtn" class="btn subtle" data-i18n="save">保存</button>
+              </div>
+              <p class="form-hint up-warn" id="apiTargetInfo"></p>
+            </div>
+            <div class="setting-item column">
+              <div class="setting-item-main">
+                <span class="setting-item-title" data-i18n="apiActions">同步操作</span>
+                <span class="setting-item-hint" data-i18n="apiHint">把当前列表以 JSON POST 到上面的地址</span>
+              </div>
+              <div class="setting-actions">
+                <button id="testApiBtn" class="btn subtle small" data-i18n="apiTest">测试连接</button>
+                <button id="uploadBtn" class="btn primary small" data-i18n="uploadApi">上传当前列表</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-section danger">
           <h3 data-i18n="dangerZone">危险操作</h3>
-          <button id="clearBtn" class="btn danger" data-i18n="clearSite">清除当前网站的 Cookie</button>
-          <p class="form-hint" data-i18n="clearSiteHint"></p>
+          <div class="setting-card">
+            <div class="setting-item">
+              <div class="setting-item-main">
+                <span class="setting-item-title" data-i18n="clearSite">清除当前网站的 Cookie</span>
+                <span class="setting-item-hint" data-i18n="clearSiteHint">删除当前标签页域名下的全部 Cookie，并刷新页面。</span>
+              </div>
+              <button id="clearBtn" class="btn danger small" data-i18n="clearBtn">清除</button>
+            </div>
+          </div>
         </div>
 
         <div class="setting-section">
           <h3 data-i18n="about">关于</h3>
-          <p class="form-hint" id="aboutInfo"></p>
-          <button type="button" id="aboutRepoBtn" class="btn small" style="margin-top:8px" data-i18n="viewSource">在 GitHub 上查看源码</button>
+          <div class="setting-card">
+            <div class="setting-item">
+              <div class="setting-item-main">
+                <span class="setting-item-title" data-i18n="aboutVersion">版本</span>
+                <span class="setting-item-hint" data-i18n="aboutRequires">需要 Chrome 114 及以上</span>
+              </div>
+              <span class="setting-item-value" id="aboutVersion">—</span>
+            </div>
+            <div class="setting-item">
+              <span class="setting-item-title" data-i18n="aboutMode">运行模式</span>
+              <span class="setting-item-value" id="aboutMode">—</span>
+            </div>
+            <div class="setting-item column tight">
+              <span class="setting-item-title" data-i18n="aboutPermission">权限</span>
+              <span class="setting-item-value">cookies · tabs · clipboardWrite · storage · sidePanel</span>
+            </div>
+            <button type="button" id="aboutRepoBtn" class="setting-link" data-i18n="viewSource">在 GitHub 上查看源码</button>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -379,7 +442,7 @@
   <div id="deleteConfirmModal" class="modal" hidden>
     <div class="modal-content" style="max-width:380px">
       <div class="modal-header">
-        <h2 data-i18n="deleteTitle">删除 Cookie</h2>
+        <h2 id="confirmTitle" data-i18n="deleteTitle">删除 Cookie</h2>
         <button class="modal-close" data-close aria-label="关闭">&times;</button>
       </div>
       <div class="modal-body">

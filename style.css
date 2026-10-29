@@ -10,7 +10,11 @@
    ========================================================================== */
 
 /* ---------- 1. 设计令牌 ---------- */
-/* 浅色为默认基底（用户手动选深色时由 [data-theme="dark"] 覆盖） */
+/* 浅色为默认基底（用户手动选深色时由 [data-theme="dark"] 覆盖）
+   ⚠️ 字号与对比度的约定：
+   - 界面正文下限 12px，中文（CJK）笔画密，低于 12px 就会「眯着眼也看不清」；
+   - 只有纯 ASCII 的代码/标识符才允许用 --mono，中文一律走 --font；
+   - text-3 只用于真正的次要信息，且需满足 4.5:1 对比度。 */
 :root {
   color-scheme: light;
 
@@ -22,8 +26,8 @@
   --border-strong: #ccd2da;
 
   --text: #1a1d21;
-  --text-2: #5c646f;
-  --text-3: #8d959f;
+  --text-2: #565e69;
+  --text-3: #717a85;
 
   --accent: #d9822b;
   --accent-strong: #b96a1a;
@@ -37,6 +41,9 @@
   --ok: #2f9e6e;
   --ok-soft: #e9f7f0;
 
+  /* 列表滚动时顶部那道分隔阴影的颜色（见 .content::before） */
+  --scroll-shadow: rgba(16, 24, 40, .10);
+
   --radius-xs: 5px;
   --radius-sm: 7px;
   --radius: 10px;
@@ -47,6 +54,10 @@
   --shadow-md: 0 6px 18px rgba(16, 24, 40, .10);
   --shadow-lg: 0 16px 44px rgba(16, 24, 40, .20);
 
+  /* ⚠️ 字体栈不要轻易加东西。
+     实测（400 条列表、首次绘制）：把 "Segoe UI Variable Text" 放进 --font 首位会让首个长任务从
+     ~52ms 涨到 ~88ms（可变字体首次初始化），而它在 Windows 上对中文毫无收益——
+     Chrome 本来就会逐字回退到雅黑。中文可读性靠的是字号/字重/配色，不是字体名。 */
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
 
@@ -63,12 +74,12 @@
     --surface: #1b1e23;
     --surface-2: #22262c;
     --surface-3: #2b3038;
-    --border: #2e333b;
-    --border-strong: #3e454f;
+    --border: #353b45;
+    --border-strong: #475061;
 
     --text: #e8ebef;
-    --text-2: #a1aab5;
-    --text-3: #737c87;
+    --text-2: #aab3be;
+    --text-3: #8a939e;
 
     --accent: #e59a4a;
     --accent-strong: #f0ab61;
@@ -81,6 +92,8 @@
 
     --ok: #4cbb8a;
     --ok-soft: #1a2e26;
+
+    --scroll-shadow: rgba(0, 0, 0, .55);
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, .40);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, .45);
@@ -97,12 +110,12 @@
   --surface: #1b1e23;
   --surface-2: #22262c;
   --surface-3: #2b3038;
-  --border: #2e333b;
-  --border-strong: #3e454f;
+  --border: #353b45;
+  --border-strong: #475061;
 
   --text: #e8ebef;
-  --text-2: #a1aab5;
-  --text-3: #737c87;
+  --text-2: #aab3be;
+  --text-3: #8a939e;
 
   --accent: #e59a4a;
   --accent-strong: #f0ab61;
@@ -157,6 +170,13 @@ body.modal-open { overflow: hidden; }
 
 ::selection { background: var(--accent-soft); color: var(--accent-strong); }
 
+/* 只在键盘导航时显示焦点环，鼠标点击不打扰 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -204,8 +224,8 @@ body.modal-open { overflow: hidden; }
 .app-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px 10px;
+  gap: 8px;
+  padding: 11px 14px 10px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -213,38 +233,80 @@ body.modal-open { overflow: hidden; }
 
 .brand { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
 
-.brand-icon { width: 26px; height: 26px; flex-shrink: 0; }
+/* 图标外面加一层很轻的底，品牌区看起来才是「一块」，而不是散落的图形 */
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(160deg, var(--surface-2), var(--surface-3));
+  border: 1px solid var(--border);
+}
+
+.brand-icon { display: block; width: 20px; height: 20px; }
 
 .brand-text { min-width: 0; }
 
 .brand-text h1 {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 650;
   letter-spacing: -.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* 当前站点的域名做成小药丸，一眼能认出「现在在读谁」 */
 .brand-sub {
-  margin: 1px 0 0;
+  display: inline-block;
+  max-width: 100%;
+  margin: 3px 0 0;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
   font-size: 11px;
-  color: var(--text-3);
+  font-weight: 500;
+  line-height: 1.5;
   font-family: var(--mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* 顶栏外观切换：三个图标常驻 DOM，由 data-theme-mode 决定露出哪一个 */
+.theme-btn .ti { display: none; }
+.theme-btn[data-theme-mode="auto"] .ti-auto,
+.theme-btn[data-theme-mode="light"] .ti-light,
+.theme-btn[data-theme-mode="dark"] .ti-dark { display: block; }
+
 /* 标签页 */
 .tabs {
+  position: relative;
   display: flex;
   gap: 4px;
   padding: 8px 14px 0;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+}
+
+/* 下方指示条用一个独立元素平滑滑动，避免「这条灭那条亮」的硬跳 */
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+  pointer-events: none;
+  transition: transform .22s var(--ease), width .22s var(--ease);
 }
 
 .tab {
@@ -268,26 +330,18 @@ body.modal-open { overflow: hidden; }
 
 .tab.active { color: var(--accent-strong); }
 
-.tab.active::after {
-  content: "";
-  position: absolute;
-  left: 8px; right: 8px; bottom: -1px;
-  height: 2px;
-  border-radius: 2px 2px 0 0;
-  background: var(--accent);
-}
-
 .tab-count {
   display: inline-block;
-  min-width: 18px;
+  min-width: 19px;
   padding: 1px 5px;
   border-radius: 9px;
   background: var(--surface-3);
   color: var(--text-2);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   text-align: center;
   font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .tab.active .tab-count { background: var(--accent-soft); color: var(--accent-strong); }
@@ -364,18 +418,27 @@ body.modal-open { overflow: hidden; }
   flex-shrink: 0;
 }
 
-.list-meta { font-size: 11.5px; color: var(--text-3); }
+.list-meta {
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-.toolbar-actions { display: flex; gap: 6px; }
+.toolbar-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
 .chip {
-  padding: 4px 9px;
+  padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
   color: var(--text-2);
   font-family: inherit;
-  font-size: 11.5px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   transition: all .15s var(--ease);
@@ -389,75 +452,76 @@ body.modal-open { overflow: hidden; }
   color: var(--accent-strong);
 }
 
-/* Header 预览面板 */
-.header-panel {
-  margin: 0 14px 9px;
-  padding: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  flex-shrink: 0;
-}
-
-.header-panel[hidden] { display: none; }
-
-.header-panel textarea {
-  width: 100%;
-  height: 84px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 1.5;
-  resize: vertical;
-}
-
-.header-panel textarea:focus { outline: none; border-color: var(--accent); }
-
-.header-panel-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 8px;
-}
-
 /* ---------- 4. Cookie 列表 ---------- */
 .content {
   flex: 1;
   min-height: 0;
-  padding: 0 14px;
+  /* 顶部留 4px：当前项的橙色环画在卡片外侧 2px，不留白会被滚动容器裁掉，
+     看起来就像被上面那条工具栏压住了一样。 */
+  padding: 4px 14px 0;
   overflow-y: auto;
+}
+
+/* 滚动分隔：列表滚动时顶部投一道向下的阴影，卡片不再直接贴着工具栏底边。
+   用 height:0 的 sticky 伪元素 + box-shadow 实现——零占位、不监听 scroll、不引发布局；
+   深色下面板本身是暗底，靠这道阴影补上「内容从工具栏下面穿过」的空间层次。 */
+.content::before {
+  content: "";
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 4px 7px -3px var(--scroll-shadow);
 }
 
 .cookie-list {
   list-style: none;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  /* 卡片间距要按「聚焦态」来留：橙色环向外画 2px，两张卡一聚焦就各吃掉 2px。
+     10px 间距下聚焦后还剩 6px，正好等于旧版的正常间距。 */
+  gap: 10px;
 }
 
 /* 注意：这里刻意不加入场动画。
    网站会频繁改写 Cookie（心跳、埋点、token 刷新），列表因此会被反复重渲染；
    若每条都重放入场动画，界面就会持续「闪动」。 */
 .cookie-item {
-  padding: 9px 10px;
+  position: relative;
+  /* 左侧多留 2px 给卡内的敏感度色条，让内容起始位置与旧版一致 */
+  padding: 10px 11px 10px 13px;
   border: 1px solid var(--border);
-  border-left: 3px solid transparent;
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-xs);
-  transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+  /* 把布局影响圈在卡片内部：侧边栏拖宽时重排的代价从「整页」降到「单卡」 */
+  contain: layout style;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), background .15s var(--ease);
 }
 
-.cookie-item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+/* 敏感度色条画在卡内、并且上下各内缩 7px。
+   ⚠️ 旧写法用 border-left 画这条色，结果「当前项」的橙色环和「已选中」的橙色边框
+   都会把它整条盖掉（border-color 一改就没了），红/绿色条与橙色糊成一片。
+   改成卡内的独立色条后，状态色只作用于卡片边框，两者互不侵占。 */
+.cookie-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: transparent;
+}
 
-.cookie-item.sensitive { border-left-color: var(--danger); }
-.cookie-item.important { border-left-color: var(--ok); }
+.cookie-item.sensitive::before { background: var(--danger); }
+.cookie-item.important::before { background: var(--ok); }
+
+.cookie-item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
 
 .ci-head {
   display: flex;
@@ -470,17 +534,20 @@ body.modal-open { overflow: hidden; }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 3px;
 }
 
-.ci-domain {
+/* 作用域（domain/path）：同名 Cookie 唯一的区分依据，必须一直可见 */
+.ci-scope {
   align-self: flex-start;
   max-width: 100%;
   padding: 1px 6px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-xs);
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  font-size: 10.5px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 11px;
   font-weight: 500;
   font-family: var(--mono);
   overflow: hidden;
@@ -488,57 +555,90 @@ body.modal-open { overflow: hidden; }
   white-space: nowrap;
 }
 
-.ci-name {
-  font-family: var(--mono);
-  font-size: 12.5px;
+/* 列表里存在同名 Cookie 时，把作用域标成强调色，避免用户拿错那条去和 F12 比对 */
+.ci-scope.dup {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent-strong);
   font-weight: 600;
+}
+
+.ci-name {
+  max-width: 100%;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
   color: var(--text);
   word-break: break-all;
 }
 
+/* 行内操作按钮默认隐藏：400 条列表 = 1200 个小按钮，常驻会一直和 Cookie 名字抢注意力。
+   hover / 键盘聚焦（focused 类）/ 焦点进入卡片内部时才淡入；
+   触屏设备没有 hover，直接常显。 */
 .ci-actions {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
-  opacity: .55;
-  transition: opacity .15s var(--ease);
+  opacity: 0;
+  transition: opacity .12s var(--ease);
 }
 
 .cookie-item:hover .ci-actions,
+.cookie-item.focused .ci-actions,
 .cookie-item:focus-within .ci-actions { opacity: 1; }
 
+@media (hover: none) {
+  .ci-actions { opacity: 1; }
+}
+
+/* 不靠降低不透明度来「淡化」操作按钮——那正是中文按钮看不清的原因 */
 .mini-btn {
-  padding: 3px 7px;
+  min-height: 24px;
+  padding: 3px 9px;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
   background: var(--surface-2);
   color: var(--text-2);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
   cursor: pointer;
   white-space: nowrap;
   transition: all .15s var(--ease);
 }
 
-.mini-btn:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+.mini-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
 .mini-btn.danger:hover { background: var(--danger-soft); color: var(--danger-strong); border-color: var(--danger); }
 .mini-btn.done { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
 
 .ci-value {
-  margin-top: 6px;
+  margin-top: 7px;
   padding: 6px 8px;
   border-radius: var(--radius-sm);
   background: var(--bg);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 11.5px;
+  line-height: 1.55;
   color: var(--text-2);
   word-break: break-all;
   cursor: pointer;
-  max-height: 34px;
+  max-height: 36px;
   overflow: hidden;
   position: relative;
-  transition: max-height .2s var(--ease);
+  transition: max-height .2s var(--ease), box-shadow .15s var(--ease);
 }
+
+/* hover 提示「这里可以点开」。
+   ⚠️ 刻意不改 background：底色一变，下面那条渐隐遮罩就得靠 CSS 变量跟着变，
+   而自定义属性会让每张卡的样式计算都多一轮解析——400 条列表实测要贵 ~7ms。
+   改用 inset 描边，视觉等价且零成本。 */
+.ci-value:hover { box-shadow: inset 0 0 0 1px var(--border-strong); }
 
 .ci-value::after {
   content: "";
@@ -557,21 +657,27 @@ body.modal-open { overflow: hidden; }
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: 7px;
 }
 
+/* 徽章里混着中文（「12 天」「会话」），所以走界面字体而不是等宽字体：
+   等宽字体的中文回退字形在 10px 下几乎无法辨读。 */
 .badge {
-  padding: 1px 6px;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-xs);
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-3);
-  font-size: 10px;
-  font-family: var(--mono);
+  color: var(--text-2);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.badge.warn { background: var(--accent-soft); border-color: transparent; color: var(--accent-strong); }
+.badge.warn { background: var(--accent-soft); border-color: transparent; color: var(--accent-strong); font-weight: 600; }
+.badge.partition { background: var(--surface-3); border-color: var(--border-strong); color: var(--text); font-weight: 600; }
 
 mark {
   background: var(--accent-soft);
@@ -586,15 +692,18 @@ mark {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   padding: 34px 20px 40px;
   text-align: center;
   color: var(--text-3);
 }
 
 .empty-state[hidden] { display: none; }
-.empty-state .empty-title { font-size: 13px; color: var(--text-2); font-weight: 500; }
-.empty-state .empty-desc { font-size: 11.5px; line-height: 1.6; }
+
+.empty-state .empty-icon { color: var(--border-strong); margin-bottom: 4px; }
+
+.empty-state .empty-title { font-size: 13.5px; color: var(--text); font-weight: 600; }
+.empty-state .empty-desc { font-size: 12px; line-height: 1.65; color: var(--text-2); max-width: 300px; }
 
 /* 底部操作栏 */
 .action-bar {
@@ -648,7 +757,7 @@ mark {
 .btn.danger:hover { background: var(--danger-strong); border-color: var(--danger-strong); }
 
 .btn.grow { flex: 1; }
-.btn.small { padding: 5px 9px; font-size: 11.5px; }
+.btn.small { padding: 5px 10px; font-size: 12px; }
 
 .icon-btn {
   display: flex;
@@ -672,7 +781,7 @@ mark {
 .form-group label {
   display: block;
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--text-2);
 }
@@ -717,20 +826,21 @@ mark {
   padding-right: 28px;
 }
 
-.form-hint { margin: 4px 0 0; font-size: 11px; color: var(--text-3); line-height: 1.5; }
+.form-hint { margin: 5px 0 0; font-size: 11.5px; color: var(--text-3); line-height: 1.6; }
 
-.error-message { min-height: 15px; margin-top: 4px; font-size: 11px; color: var(--danger); }
+.error-message { min-height: 16px; margin-top: 4px; font-size: 12px; color: var(--danger); }
 
 .expiration-buttons { display: flex; gap: 6px; margin-top: 6px; }
 
 .expiration-buttons button {
-  padding: 4px 9px;
+  padding: 5px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
   background: var(--surface-2);
   color: var(--text-2);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   transition: all .15s var(--ease);
 }
@@ -772,7 +882,7 @@ mark {
 }
 
 .file-input-container { display: flex; align-items: center; gap: 10px; }
-.file-name { font-size: 11.5px; color: var(--text-3); word-break: break-all; }
+.file-name { font-size: 12px; color: var(--text-2); word-break: break-all; }
 
 /* ---------- 6. 模态框 ---------- */
 .modal {
@@ -857,53 +967,128 @@ mark {
   flex-shrink: 0;
 }
 
-/* 设置面板内的区块 */
-.setting-section { margin-bottom: 18px; }
+/* ---------- 设置面板 ---------- */
+/* 排版思路：区块标题 + 一张「卡」把同组设置装起来，卡内每行左侧是标签、
+   右侧是控件。避免整屏从上到下都是文字，扫读时有明确的层级和落点。 */
+.setting-section { margin-bottom: 14px; }
 .setting-section:last-child { margin-bottom: 0; }
 
-.setting-section h3 {
-  margin: 0 0 8px;
-  font-size: 12px;
+.setting-section > h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 7px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .02em;
 }
+
+/* 标题前的小竖条：一眼分清区块边界，比纯文字的层级感强得多 */
+.setting-section > h3::before {
+  content: "";
+  flex-shrink: 0;
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.setting-section.danger > h3 { color: var(--danger-strong); }
+.setting-section.danger > h3::before { background: var(--danger); }
+
+.setting-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* 一行设置：左标签 / 右控件 */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+}
+
+.setting-item + .setting-item { border-top: 1px solid var(--border); }
+
+/* 控件较宽（输入框、多个按钮）时改成上下排列 */
+.setting-item.column {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.setting-item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-item-title { font-size: 12.5px; font-weight: 500; color: var(--text); }
+
+.setting-item-hint { font-size: 11.5px; line-height: 1.5; color: var(--text-3); }
+.setting-item-hint:empty { display: none; }
+
+.setting-item-value {
+  flex-shrink: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  text-align: right;
+  word-break: break-word;
+}
+
+/* 值很长时改成上下排：标签不再被挤成竖排单字，值左对齐自然折行 */
+.setting-item.column .setting-item-value { text-align: left; }
+
+/* 上下排但不需要额外留白的小行（如「权限」） */
+.setting-item.column.tight { gap: 3px; }
+
+/* 左右排布时标签不参与收缩，避免「权 / 限」这种竖排断字 */
+.setting-item-title { flex-shrink: 0; }
 
 .setting-row { display: flex; gap: 6px; }
 
-/* 外观模式选择（跟随系统 / 浅色 / 深色） */
-.theme-options {
-  display: flex;
-  gap: 4px;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-2);
-}
+.setting-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
-.theme-option {
-  flex: 1;
-  padding: 6px;
+/* 「关于」里的外链：做成整行可点的列表项，而不是孤零零一个按钮 */
+.setting-link {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-top: 1px solid var(--border);
   background: none;
-  color: var(--text-2);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .15s var(--ease);
-}
-
-.theme-option:hover { color: var(--text); }
-
-.theme-option.active {
-  background: var(--surface);
   color: var(--accent-strong);
-  box-shadow: var(--shadow-xs);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s var(--ease);
 }
+
+.setting-link:hover { background: var(--accent-soft); }
+
+/* 次要按钮：比主按钮轻，但比纯文字明确 */
+.btn.subtle {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.btn.subtle:hover { background: var(--surface-3); color: var(--text); }
+
+/* 提醒性质的说明文字（比如「只允许 https」） */
+.form-hint.up-warn { color: var(--accent-strong); font-weight: 500; }
+.form-hint.up-warn:empty { display: none; }
 
 /* 导出选项 */
 .export-option {
@@ -927,8 +1112,8 @@ mark {
 .export-option:hover { border-color: var(--accent); background: var(--accent-soft); }
 
 .export-option .eo-main { flex: 1; min-width: 0; }
-.export-option .eo-title { font-weight: 500; }
-.export-option .eo-desc { font-size: 11px; color: var(--text-3); font-family: var(--mono); }
+.export-option .eo-title { font-weight: 600; }
+.export-option .eo-desc { font-size: 11.5px; color: var(--text-2); font-family: var(--mono); }
 
 /* ---------- 7. Toast ---------- */
 .toast-host {
@@ -945,12 +1130,12 @@ mark {
 }
 
 .toast {
-  padding: 8px 14px;
+  padding: 9px 15px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
   color: var(--text);
-  font-size: 12px;
+  font-size: 12.5px;
   box-shadow: var(--shadow-md);
   opacity: 0;
   transform: translateY(8px);
@@ -966,13 +1151,13 @@ mark {
 .toast-row { display: flex; align-items: center; gap: 10px; }
 
 .toast-action {
-  padding: 2px 8px;
+  padding: 3px 9px;
   border: 1px solid currentColor;
   border-radius: 999px;
   background: none;
   color: inherit;
   font-family: inherit;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   pointer-events: auto;
@@ -998,31 +1183,36 @@ mark {
   cursor: pointer;
 }
 
+/* 批量选择态（复选框）——语义色条在卡内，不受这里的 border-color 影响。
+   选中不再占用边框色：浅底 + 复选框已是双通道信号，
+   把 accent 边框留给「聚焦」，两个状态的层次才不会糊在一起。 */
 .cookie-item.selected {
-  border-color: var(--accent);
   background: var(--accent-soft);
 }
 
 .cookie-item.selected .ci-value { background: var(--surface); }
 
-/* 键盘聚焦 */
-.cookie-item.focused { box-shadow: 0 0 0 2px var(--accent); }
+/* 当前项（鼠标点击 / 键盘上下导航）：accent 边框 + 外环，一眼定位 */
+.cookie-item.focused {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
 
 /* 风险提示 */
 .risk-list {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-top: 6px;
+  gap: 4px;
+  margin-top: 7px;
 }
 
 .risk-item {
-  padding: 4px 7px;
+  padding: 5px 8px;
   border-radius: var(--radius-xs);
   background: var(--danger-soft);
   color: var(--danger-strong);
-  font-size: 10.5px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .chip.risk { border-color: var(--danger); color: var(--danger-strong); }
@@ -1031,19 +1221,19 @@ mark {
 /* 解析结果（JWT / URL 解码） */
 .decoded-block {
   margin-top: 6px;
-  padding: 7px 8px;
+  padding: 8px 9px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-2);
 }
 
 .decoded-label {
-  margin-bottom: 4px;
-  font-size: 10px;
+  margin-bottom: 5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .decoded-block pre {
@@ -1051,14 +1241,16 @@ mark {
   max-height: 190px;
   overflow-y: auto;
   font-family: var(--mono);
-  font-size: 10.5px;
-  line-height: 1.55;
+  font-size: 11.5px;
+  line-height: 1.6;
   color: var(--text-2);
   white-space: pre-wrap;
   word-break: break-all;
 }
 
 /* 域名分组 */
+/* 宽屏双列 grid 下横跨整行：分组头只占半列时，域名会被截断，
+   且和它的第一个成员并排，分组的统领性直接断裂。单列 / flex 下此声明无效果。 */
 .domain-group {
   display: flex;
   align-items: center;
@@ -1070,6 +1262,7 @@ mark {
   background: var(--surface-2);
   cursor: pointer;
   user-select: none;
+  grid-column: 1 / -1;
 }
 
 .cookie-list > .domain-group:first-child { margin-top: 0; }
@@ -1077,7 +1270,7 @@ mark {
 .domain-group .dg-name {
   overflow: hidden;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-2);
   text-overflow: ellipsis;
@@ -1087,8 +1280,9 @@ mark {
 .domain-group .dg-count {
   flex-shrink: 0;
   font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--text-3);
+  font-size: 11.5px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 代码生成 */
@@ -1102,7 +1296,8 @@ mark {
   background: var(--surface-2);
   color: var(--text-2);
   font-family: inherit;
-  font-size: 11.5px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   transition: all .15s var(--ease);
 }
@@ -1113,7 +1308,7 @@ mark {
   background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent-strong);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .code-output {
@@ -1125,11 +1320,44 @@ mark {
   border-radius: var(--radius-sm);
   background: var(--bg);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   line-height: 1.6;
   color: var(--text-2);
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* ---------- 首次渲染的骨架占位 ---------- */
+/* 侧边栏滑入动画期间先摆骨架，既避免白屏抖动，也几乎不占主线程 */
+.skeleton-item {
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.sk-line,
+.sk-tags > span {
+  border-radius: var(--radius-xs);
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+
+.sk-line { height: 10px; }
+.sk-line.sk-a { width: 42%; height: 12px; }
+.sk-line.sk-b { width: 30%; margin-top: 7px; }
+.sk-line.sk-c { width: 100%; height: 26px; margin-top: 9px; }
+
+.sk-tags { display: flex; gap: 5px; margin-top: 9px; }
+.sk-tags > span { width: 46px; height: 14px; }
+.sk-tags > span:nth-child(2) { width: 58px; }
+.sk-tags > span:nth-child(3) { width: 38px; }
+
+/* 骨架用 background-position 动画（不触发布局/绘制几何变化），滑入时不会拖后腿 */
+@keyframes sk-shimmer {
+  from { background-position: 100% 50%; }
+  to { background-position: 0 50%; }
 }
 
 /* ---------- 宽屏（侧边栏拖宽后）---------- */
@@ -1137,7 +1365,7 @@ mark {
   .cookie-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
     align-items: start;
   }
 

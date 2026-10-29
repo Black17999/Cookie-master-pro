@@ -80,7 +80,6 @@ function scoreCookie(cookie, rawQuery) {
 
   const domain = normalizeDomain(cookie.domain);
   const name = String(cookie.name || '').toLowerCase();
-  const value = String(cookie.value || '').toLowerCase();
 
   let score = 0;
 
@@ -90,7 +89,14 @@ function scoreCookie(cookie, rawQuery) {
   if (name === query) score += 20;
   else if (name.includes(query)) score += 10;
 
-  if (query.length >= 3 && value.includes(query)) score += 1;
+  // value 可能长达 4KB，整体 toLowerCase 是搜索路径上最贵的一步
+  // （「全部 Cookie」几千条时，这一行就是搜索长任务的主要来源）。
+  // 只有 domain/name 都没命中、且查询词足够长（短词在 value 里误匹配率太高）时才查 value；
+  // 域名或名称已命中时，用户已经能找到这条，value 里的匹配不再影响排序。
+  if (!score && query.length >= 3) {
+    const value = String(cookie.value || '').toLowerCase();
+    if (value.includes(query)) score += 1;
+  }
 
   return score;
 }
@@ -121,6 +127,9 @@ function highlightMatch(text, query) {
 const SENSITIVE_RE = /session|token|auth|jwt|csrf|leaflow|remember_web|password|passwd|sid/i;
 const IMPORTANT_RE = /shared_api_cookie|csrftoken|uid|userid|account/i;
 
+// SameSite 的接口枚举值换成界面上的可读写法
+const SAMESITE_LABEL = { no_restriction: 'None', lax: 'Lax', strict: 'Strict' };
+
 function getCookiePriority(cookie) {
   const name = String(cookie.name || '');
   if (SENSITIVE_RE.test(name)) return 3;
@@ -139,19 +148,41 @@ function cookieUrl(cookie) {
   return `${protocol}://${domain}${path.startsWith('/') ? path : '/' + path}`;
 }
 
+// 徽章上的文字尽量短（中文长句在 11px 下几乎无法辨读），完整说明放进 title
+// 徽章文字必须让没接触过 Cookie 的人也能读懂。
+// ⚠️ 别为了省地方缩成「399 天」「1 小时」——新手根本不知道那是在说什么；
+// 悬浮提示里再补上具体到分钟的时刻，想查确切时间的人也有得查。
 function formatExpiry(cookie) {
-  if (!cookie.expirationDate) return { text: t('badgeSession'), warn: false };
+  if (!cookie.expirationDate) {
+    return { text: t('badgeSession'), full: t('badgeSessionFull'), warn: false };
+  }
 
+  const when = formatExpiryDate(cookie.expirationDate);
   const diff = cookie.expirationDate * 1000 - Date.now();
-  if (diff <= 0) return { text: t('badgeExpired'), warn: true };
+
+  if (diff <= 0) {
+    return { text: t('badgeExpired'), full: t('badgeExpiredAt', { date: when }), warn: true };
+  }
 
   const days = Math.floor(diff / 86400000);
-  if (days >= 1) return { text: t('badgeDays', { n: days }), warn: days <= 3 };
+  if (days >= 1) {
+    return { text: t('badgeDaysFull', { n: days }), full: t('badgeExpiresAt', { date: when }), warn: days <= 3 };
+  }
 
   const hours = Math.floor(diff / 3600000);
-  if (hours >= 1) return { text: t('badgeHours', { n: hours }), warn: true };
+  if (hours >= 1) {
+    return { text: t('badgeHoursFull', { n: hours }), full: t('badgeExpiresAt', { date: when }), warn: true };
+  }
 
-  return { text: t('badgeMinutes', { n: Math.max(1, Math.floor(diff / 60000)) }), warn: true };
+  const minutes = Math.max(1, Math.floor(diff / 60000));
+  return { text: t('badgeMinutesFull', { n: minutes }), full: t('badgeExpiresAt', { date: when }), warn: true };
+}
+
+// 给人看的时刻（datetime-local 那种带 T 的格式是给输入框用的）
+function formatExpiryDate(ts) {
+  const d = new Date(ts * 1000);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function formatDateTime(ts) {
@@ -329,6 +360,8 @@ async function detectMode() {
 // ---------- 外观模式 ----------
 
 const THEME_KEY = 'themePreference';
+const THEME_CYCLE = ['auto', 'light', 'dark'];
+const THEME_LABEL_KEY = { auto: 'themeAuto', light: 'themeLight', dark: 'themeDark' };
 let themePreference = 'auto';
 
 const storage = {
@@ -348,20 +381,38 @@ const storage = {
   }
 };
 
+function themeLabel(preference) {
+  return t(THEME_LABEL_KEY[preference] || 'themeAuto');
+}
+
 function applyTheme() {
   const root = document.documentElement;
   if (themePreference === 'auto') root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', themePreference);
 
-  document.querySelectorAll('.theme-option').forEach(button => {
-    button.classList.toggle('active', button.dataset.theme === themePreference);
-  });
+  // 顶栏按钮：图标随模式切换，提示语写明「点击后切到哪个模式」
+  if (el.themeBtn) {
+    el.themeBtn.dataset.themeMode = themePreference;
+    const nextTheme = THEME_CYCLE[(THEME_CYCLE.indexOf(themePreference) + 1) % THEME_CYCLE.length];
+    el.themeBtn.title = t('themeSwitchTitle', { mode: themeLabel(themePreference), next: themeLabel(nextTheme) });
+    el.themeBtn.setAttribute('aria-label', el.themeBtn.title);
+  }
+  if (el.themeStateText) {
+    el.themeStateText.textContent = t('themeCurrent', { mode: themeLabel(themePreference) });
+  }
 }
 
-function setTheme(preference) {
+function setTheme(preference, silent) {
   themePreference = preference;
   applyTheme();
   storage.set({ [THEME_KEY]: preference });
+  if (!silent) toast(t('themeSwitched', { mode: themeLabel(preference) }));
+}
+
+// 单键循环：跟随系统 → 浅色 → 深色 → 跟随系统，1 次点击完成切换
+function cycleTheme() {
+  const next = THEME_CYCLE[(THEME_CYCLE.indexOf(themePreference) + 1) % THEME_CYCLE.length];
+  setTheme(next);
 }
 
 // ---------- 状态 ----------
@@ -449,11 +500,12 @@ async function getAllCookiesEverywhere(forceRefresh) {
   return allCookiesCache;
 }
 
-async function fetchCurrentSiteCookies() {
+// 纯函数：把「全部 Cookie」按当前网站筛一遍，不再自己去拉数据
+function filterCurrentSite(all) {
   const normalized = normalizeDomain(state.currentDomain);
-  const base = getBaseDomain(normalized);
-  const all = await getAllCookiesEverywhere();
+  if (!normalized) return [];
 
+  const base = getBaseDomain(normalized);
   return all.filter(cookie => {
     const d = normalizeDomain(cookie.domain);
     return d === normalized || d === base || d.endsWith('.' + base);
@@ -520,14 +572,41 @@ function buildBadges(cookie) {
   if (cookie.httpOnly) badges.push('<span class="badge">HttpOnly</span>');
   if (cookie.secure) badges.push('<span class="badge">Secure</span>');
   if (cookie.sameSite && cookie.sameSite !== 'unspecified') {
-    badges.push(`<span class="badge">SameSite=${escapeHtml(cookie.sameSite)}</span>`);
+    const label = SAMESITE_LABEL[cookie.sameSite] || cookie.sameSite;
+    badges.push(`<span class="badge">SameSite=${escapeHtml(label)}</span>`);
   }
   if (cookie.hostOnly) badges.push('<span class="badge">HostOnly</span>');
 
+  // 分区 Cookie（CHIPS）：同名 Cookie 在不同顶级站点下可以有不同的值，
+  // 这是「插件看到的值和 F12 不一样」的常见原因之一，必须标出来。
+  if (cookie.partitionKey) {
+    const site = cookie.partitionKey.topLevelSite || '';
+    badges.push(`<span class="badge partition" title="${escapeHtml(t('badgePartitionTitle', { site }))}">${escapeHtml(t('badgePartition'))}</span>`);
+  }
+  if (cookie.storeId && cookie.storeId !== '0') {
+    badges.push(`<span class="badge">Store ${escapeHtml(String(cookie.storeId))}</span>`);
+  }
+
   const expiry = formatExpiry(cookie);
-  badges.push(`<span class="badge${expiry.warn ? ' warn' : ''}">${expiry.text}</span>`);
+  badges.push(`<span class="badge${expiry.warn ? ' warn' : ''}" title="${escapeHtml(expiry.full)}">${escapeHtml(expiry.text)}</span>`);
 
   return badges.join('');
+}
+
+// 卡片上的作用域标注：domain + path。
+// 同名 Cookie 常常只在 path（或 domain）上不同、值却完全不同，
+// 不把 path 显示出来就无从分辨，这正是「和 F12 对不上」的根因之一。
+function scopeLabel(cookie) {
+  const domain = normalizeDomain(cookie.domain);
+  const path = cookie.path || '/';
+  return state.tab === 'all' ? `${domain}${path}` : path;
+}
+
+function scopeTitle(cookie, dupCount) {
+  const domain = normalizeDomain(cookie.domain);
+  const path = cookie.path || '/';
+  if (dupCount > 1) return t('dupNameHint', { n: dupCount, domain, path });
+  return `${domain}${path}`;
 }
 
 // 展开值时附带展示 JWT 载荷 / URL 解码结果
@@ -566,7 +645,7 @@ function buildRiskBlocks(cookie) {
     .join('')}</div>`;
 }
 
-function renderItemHtml(cookie, index) {
+function renderItemHtml(cookie, index, dupCount) {
   const key = cookieKey(cookie);
   const priority = getCookiePriority(cookie);
   const risky = isRisky(cookie);
@@ -578,16 +657,21 @@ function renderItemHtml(cookie, index) {
     state.focusIndex === index ? 'focused' : ''
   ].filter(Boolean).join(' ');
 
-  const domainLabel = normalizeDomain(cookie.domain) + (cookie.path || '/');
   const expanded = state.expanded.has(key);
   const valueText = cookie.value === '' ? t('emptyValue') : highlightMatch(cookie.value, state.query);
+  const duplicated = dupCount > 1;
+
+  // 作用域只在「有信息量」时出现：
+  // 当前网站视图下，根路径且同名的独苗就不展示了——满屏的「/」只会制造噪音；
+  // 一旦出现同名或非根路径（真正的歧义来源），它就立刻显形。
+  const showScope = state.tab === 'all' || duplicated || (cookie.path || '/') !== '/';
 
   return `<li class="${cls}" data-index="${index}" data-key="${escapeHtml(key)}">
     <div class="ci-head">
       ${state.selecting ? `<label class="ci-check"><input type="checkbox" data-act="select"${state.selected.has(key) ? ' checked' : ''}></label>` : ''}
       <div class="ci-title">
-        ${state.tab === 'all' ? `<span class="ci-domain" title="${escapeHtml(domainLabel)}">${highlightMatch(domainLabel, state.query)}</span>` : ''}
         <span class="ci-name">${highlightMatch(cookie.name, state.query)}</span>
+        ${showScope ? `<span class="ci-scope${duplicated ? ' dup' : ''}" title="${escapeHtml(scopeTitle(cookie, dupCount))}">${highlightMatch(scopeLabel(cookie), state.query)}</span>` : ''}
       </div>
       <div class="ci-actions">
         <button type="button" class="mini-btn" data-act="copy">${escapeHtml(t('copy'))}</button>
@@ -602,7 +686,16 @@ function renderItemHtml(cookie, index) {
   </li>`;
 }
 
+// 统计同名 Cookie：同名的必须在界面上能被区分出来，否则用户会拿错那条去和 F12 对比
+function countNames(list) {
+  const counts = new Map();
+  list.forEach(cookie => counts.set(cookie.name, (counts.get(cookie.name) || 0) + 1));
+  return counts;
+}
+
 function buildListHtml(list) {
+  const nameCounts = countNames(list);
+
   // 按域名分组
   if (state.sort === 'domain') {
     const groups = new Map();
@@ -627,16 +720,16 @@ function buildListHtml(list) {
         return;
       }
 
-      html += items.map(cookie => renderItemHtml(cookie, index++)).join('');
+      html += items.map(cookie => renderItemHtml(cookie, index++, nameCounts.get(cookie.name))).join('');
     });
 
     return html;
   }
 
-  return list.map((cookie, index) => renderItemHtml(cookie, index)).join('');
+  return list.map((cookie, index) => renderItemHtml(cookie, index, nameCounts.get(cookie.name))).join('');
 }
 
-function computeSignature(filtered) {
+function computeSignature(visible) {
   let hash = 2166136261;
   const mix = value => {
     const text = String(value === undefined || value === null ? '' : value);
@@ -657,7 +750,9 @@ function computeSignature(filtered) {
   mix(state.currentCookies.length);
   mix(state.allCookies.length);
 
-  for (const cookie of filtered) {
+  // 只对真正会被画出来的那批条目算指纹（列表上限 MAX_RENDER）。
+  // 旧写法会把全部 Cookie（可能上万条）逐字符哈希一遍，纯属白烧 CPU。
+  for (const cookie of visible) {
     mix(cookie.name);
     mix(cookie.domain);
     mix(cookie.path);
@@ -670,18 +765,19 @@ function computeSignature(filtered) {
 function render(options) {
   const opts = options || {};
   const filtered = getFilteredCookies();
-  const signature = computeSignature(filtered);
+  const visible = filtered.slice(0, MAX_RENDER);
+  const signature = computeSignature(visible);
 
   if (!opts.force && signature === lastRenderSignature) return;
   lastRenderSignature = signature;
 
   const scrollTop = opts.resetScroll ? 0 : el.content.scrollTop;
 
-  state.visible = filtered.slice(0, MAX_RENDER);
-  el.cookieList.innerHTML = buildListHtml(state.visible);
-  bindListEvents();
+  state.visible = visible;
+  el.cookieList.classList.remove('is-skeleton');
+  el.cookieList.innerHTML = buildListHtml(visible);
 
-  updateMeta(filtered.length);
+  updateMeta(filtered, visible);
   updateEmptyState(filtered.length);
   updateCountsOnly();
   updateBatchBar();
@@ -689,62 +785,98 @@ function render(options) {
   el.content.scrollTop = scrollTop;
 }
 
-function bindListEvents() {
-  el.cookieList.querySelectorAll('.domain-group').forEach(node => {
-    node.addEventListener('click', () => {
-      const domain = node.dataset.group;
-      if (state.collapsed.has(domain)) state.collapsed.delete(domain);
-      else state.collapsed.add(domain);
-      render({ force: true });
-    });
-  });
+// 列表事件全部委托到 <ul> 上一次绑定。
+// 旧写法给每个元素单独挂监听器，400 条 × 5 个交互点 ≈ 1600 次绑定，是打开时的主要开销之一。
+// 「当前项」只是卡片上的一个视觉状态，所以只换 class、不重建整张列表。
+// ⚠️ 旧写法改了 state.focusIndex 却完全不重渲染，于是橙色环要等到下一次
+// 无关的刷新（通常是站点自己写 Cookie）才补上——用户看到的就是「点了要等十几秒才亮」。
+function focusItem(index, scroll) {
+  if (state.focusIndex !== index) {
+    state.focusIndex = index;
 
-  el.cookieList.querySelectorAll('li[data-index]').forEach(li => {
-    const cookie = state.visible[Number(li.dataset.index)];
-    if (!cookie) return;
+    el.cookieList.querySelectorAll('li[data-index].focused').forEach(node => node.classList.remove('focused'));
+    const node = el.cookieList.querySelector(`li[data-index="${index}"]`);
+    if (node) node.classList.add('focused');
 
-    li.addEventListener('click', event => {
-      if (event.target.closest('[data-act]')) return;
-      state.focusIndex = Number(li.dataset.index);
-    });
+    // 让渲染指纹与 DOM 保持一致，否则下一次 render 会因签名相同而整体跳过
+    lastRenderSignature = computeSignature(state.visible);
+  }
 
-    li.querySelectorAll('[data-act]').forEach(node => {
-      const act = node.dataset.act;
-
-      if (act === 'select') {
-        node.addEventListener('change', event => {
-          const key = cookieKey(cookie);
-          if (event.target.checked) state.selected.add(key);
-          else state.selected.delete(key);
-          li.classList.toggle('selected', event.target.checked);
-          updateBatchBar();
-        });
-        return;
-      }
-
-      node.addEventListener('click', () => {
-        if (act === 'copy') copyValue(node, cookie.value);
-        else if (act === 'edit') openEditModal(cookie);
-        else if (act === 'delete') requestDelete(cookie);
-        else if (act === 'toggle') {
-          const key = cookieKey(cookie);
-          if (state.expanded.has(key)) state.expanded.delete(key);
-          else state.expanded.add(key);
-          render({ force: true });
-        }
-      });
-    });
-  });
+  if (scroll) {
+    const node = el.cookieList.querySelector(`li[data-index="${index}"]`);
+    if (node && node.scrollIntoView) node.scrollIntoView({ block: 'nearest' });
+  }
 }
 
-function updateMeta(matched) {
+function onListClick(event) {
+  const group = event.target.closest('.domain-group');
+  if (group) {
+    const domain = group.dataset.group;
+    if (state.collapsed.has(domain)) state.collapsed.delete(domain);
+    else state.collapsed.add(domain);
+    render({ force: true });
+    return;
+  }
+
+  const li = event.target.closest('li[data-index]');
+  if (!li) return;
+
+  const cookie = state.visible[Number(li.dataset.index)];
+  if (!cookie) return;
+
+  const action = event.target.closest('[data-act]');
+
+  if (!action || action.dataset.act === 'select') {
+    if (!action) focusItem(Number(li.dataset.index));
+    return;
+  }
+
+  switch (action.dataset.act) {
+    case 'copy':
+      copyValue(action, cookie.value);
+      break;
+    case 'edit':
+      openEditModal(cookie);
+      break;
+    case 'delete':
+      requestDelete(cookie);
+      break;
+    case 'toggle': {
+      const key = cookieKey(cookie);
+      if (state.expanded.has(key)) state.expanded.delete(key);
+      else state.expanded.add(key);
+      render({ force: true });
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function onListChange(event) {
+  const input = event.target.closest('input[data-act="select"]');
+  if (!input) return;
+
+  const li = input.closest('li[data-index]');
+  const cookie = li && state.visible[Number(li.dataset.index)];
+  if (!cookie) return;
+
+  const key = cookieKey(cookie);
+  if (input.checked) state.selected.add(key);
+  else state.selected.delete(key);
+
+  li.classList.toggle('selected', input.checked);
+  updateBatchBar();
+}
+
+function updateMeta(filtered, visible) {
   const source = getSourceCookies();
   const parts = [];
 
-  if (state.query) parts.push(t('metaMatched', { n: matched, m: source.length }));
+  if (state.query) parts.push(t('metaMatched', { n: filtered.length, m: source.length }));
   else parts.push(t('metaTotal', { n: source.length }));
 
-  if (matched > MAX_RENDER) parts.push(t('metaTruncated', { n: MAX_RENDER }));
+  if (filtered.length > visible.length) parts.push(t('metaTruncated', { n: MAX_RENDER }));
 
   const riskyCount = source.filter(isRisky).length;
   if (riskyCount) parts.push(t('metaRisky', { n: riskyCount }));
@@ -858,6 +990,10 @@ async function confirmEdit() {
     secure: el.editCookieSecure.value === 'true'
   };
 
+  // 非 host-only 的 Cookie 必须把 domain 显式带回去，
+  // 否则 chrome.cookies.set 会按 url 推断成 host-only，把 .example.com 悄悄降级成 example.com
+  if (!cookieToEdit.hostOnly) params.domain = normalizeDomain(cookieToEdit.domain);
+
   if (params.sameSite === 'no_restriction' && !params.secure) {
     params.secure = true;
     el.editCookieSecure.value = 'true';
@@ -877,10 +1013,20 @@ async function confirmEdit() {
   }
 }
 
-// 统一的自定义确认框，替代浏览器原生 confirm
+// 统一的自定义确认框，替代浏览器原生 confirm。
+// options: { title, message, detail, confirmLabel, danger, onConfirm }
 function openConfirm(options) {
+  const isDanger = options.danger !== false;
+
+  el.confirmTitle.textContent = options.title || t('deleteTitle');
   el.deleteMessage.textContent = options.message;
   el.deleteTarget.textContent = options.detail || '';
+  el.deleteTarget.hidden = !options.detail;
+
+  el.confirmDeleteBtn.textContent = options.confirmLabel || t('delete');
+  el.confirmDeleteBtn.classList.toggle('danger', isDanger);
+  el.confirmDeleteBtn.classList.toggle('primary', !isDanger);
+
   pendingConfirm = options.onConfirm;
   openModal('deleteConfirmModal');
 }
@@ -892,45 +1038,52 @@ function runConfirm() {
   if (action) action();
 }
 
-async function removeCookies(list) {
+// 批量 Cookie 操作按小批次并发执行。
+// chrome.cookies 每条的 set/remove 都是一次独立 IPC，串行 for-await 在 100 条时
+// 就是 0.5~1.5 秒的无反馈卡顿（批量删除、导入、撤销恢复都走这条路）。
+// 每批 10 条并发：既把 IPC pipeline 打满，又不至于把扩展进程一下堵死。
+const IPC_BATCH_SIZE = 10;
+
+// worker(item) 返回 Promise，resolve 为 truthy 计成功；reject 或 falsy 计失败，单条失败不中断整批。
+async function runBatched(list, worker) {
   let ok = 0;
-  for (const cookie of list) {
-    try {
-      const params = { url: cookieUrl(cookie), name: cookie.name };
-      if (cookie.storeId) params.storeId = cookie.storeId;
-      await chrome.cookies.remove(params);
-      ok++;
-    } catch (error) {
-      // 单条失败不中断整批
-    }
+  for (let i = 0; i < list.length; i += IPC_BATCH_SIZE) {
+    const batch = list.slice(i, i + IPC_BATCH_SIZE);
+    const results = await Promise.all(batch.map(item => worker(item).then(
+      success => (success ? 1 : 0),
+      () => 0
+    )));
+    results.forEach(n => { ok += n; });
   }
   return ok;
 }
 
-async function restoreCookies(list) {
-  let ok = 0;
-  for (const cookie of list) {
-    try {
-      const params = {
-        url: cookieUrl(cookie),
-        name: cookie.name,
-        value: cookie.value,
-        path: cookie.path || '/',
-        secure: !!cookie.secure,
-        httpOnly: !!cookie.httpOnly,
-        sameSite: cookie.sameSite || 'unspecified'
-      };
-      if (params.sameSite === 'no_restriction') params.secure = true;
-      if (cookie.expirationDate) params.expirationDate = cookie.expirationDate;
-      if (cookie.storeId) params.storeId = cookie.storeId;
+async function removeCookies(list) {
+  return runBatched(list, cookie => {
+    const params = { url: cookieUrl(cookie), name: cookie.name };
+    if (cookie.storeId) params.storeId = cookie.storeId;
+    return chrome.cookies.remove(params);
+  });
+}
 
-      const result = await chrome.cookies.set(params);
-      if (result) ok++;
-    } catch (error) {
-      // 忽略
-    }
-  }
-  return ok;
+async function restoreCookies(list) {
+  return runBatched(list, cookie => {
+    const params = {
+      url: cookieUrl(cookie),
+      name: cookie.name,
+      value: cookie.value,
+      path: cookie.path || '/',
+      secure: !!cookie.secure,
+      httpOnly: !!cookie.httpOnly,
+      sameSite: cookie.sameSite || 'unspecified'
+    };
+    if (!cookie.hostOnly) params.domain = normalizeDomain(cookie.domain);
+    if (params.sameSite === 'no_restriction') params.secure = true;
+    if (cookie.expirationDate) params.expirationDate = cookie.expirationDate;
+    if (cookie.storeId) params.storeId = cookie.storeId;
+
+    return chrome.cookies.set(params);
+  });
 }
 
 function offerUndo(list) {
@@ -1239,9 +1392,11 @@ function parseCookieText(text) {
 }
 
 async function importCookieList(cookies, fallbackUrl) {
-  let ok = 0;
-  let fail = 0;
+  const tasks = [];
+  let invalid = 0;
 
+  // 先把每条导入项翻译成 chrome.cookies.set 的参数，URL 不合法的直接计失败，
+  // 剩下的交给 runBatched 并发写入。
   for (const cookie of cookies) {
     let url = fallbackUrl;
 
@@ -1251,7 +1406,7 @@ async function importCookieList(cookies, fallbackUrl) {
       url = `http${cookie.secure ? 's' : ''}://${domain}${path.startsWith('/') ? path : '/' + path}`;
     }
 
-    if (!url || !/^https?:/i.test(url)) { fail++; continue; }
+    if (!url || !/^https?:/i.test(url)) { invalid++; continue; }
 
     const params = {
       url,
@@ -1263,19 +1418,15 @@ async function importCookieList(cookies, fallbackUrl) {
       sameSite: cookie.sameSite || 'unspecified'
     };
 
+    if (cookie.domain && cookie.hostOnly === false) params.domain = normalizeDomain(cookie.domain);
     if (params.sameSite === 'no_restriction') params.secure = true;
     if (cookie.expirationDate) params.expirationDate = cookie.expirationDate;
 
-    try {
-      const result = await chrome.cookies.set(params);
-      if (result) ok++;
-      else fail++;
-    } catch (error) {
-      fail++;
-    }
+    tasks.push(params);
   }
 
-  return { ok, fail };
+  const ok = await runBatched(tasks, params => chrome.cookies.set(params));
+  return { ok, fail: invalid + (tasks.length - ok) };
 }
 
 async function confirmImport() {
@@ -1371,19 +1522,62 @@ function doExport(format) {
 
 // ---------- 设置 ----------
 
-async function uploadToApi() {
+function apiTargetHost(url) {
+  try { return new URL(url).host; } catch (error) { return ''; }
+}
+
+// 只允许 https；本机回环地址（localhost / 127.0.0.1）额外放行明文 http，
+// 方便对接本地的小服务。其余明文地址一律拒绝——那等于把登录态裸奔在网上。
+function isApiUrlAllowed(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:') return true;
+    if (parsed.protocol !== 'http:') return false;
+    return /^(localhost|127(\.\d{1,3}){3}|\[::1\])$/i.test(parsed.hostname);
+  } catch (error) {
+    return false;
+  }
+}
+
+function updateApiTargetInfo() {
+  if (!el.apiTargetInfo) return;
+
+  const url = el.apiInput.value.trim();
+  if (!url) {
+    el.apiTargetInfo.textContent = '';
+    return;
+  }
+
+  if (!isApiUrlAllowed(url)) {
+    el.apiTargetInfo.textContent = t('apiInsecure');
+    return;
+  }
+
+  el.apiTargetInfo.textContent = t('apiTarget', { host: apiTargetHost(url) });
+}
+
+async function testApiConnection() {
   const apiUrl = el.apiInput.value.trim();
   if (!apiUrl) {
     toast(t('apiRequired'), 'error');
     return;
   }
-
-  const list = getFilteredCookies();
-  if (!list.length) {
-    toast(t('nothingToUpload'), 'error');
+  if (!isApiUrlAllowed(apiUrl)) {
+    toast(t('apiInsecure'), 'error');
     return;
   }
 
+  const started = Date.now();
+  try {
+    const res = await fetch(apiUrl, { method: 'HEAD', cache: 'no-store' });
+    toast(t('apiTestDone', { code: res.status, ms: Date.now() - started }));
+  } catch (error) {
+    toast(t('apiTestFailed', { msg: error.message }), 'error');
+  }
+}
+
+async function postToApi(apiUrl) {
+  const list = getFilteredCookies();
   try {
     const res = await fetch(apiUrl, {
       method: 'POST',
@@ -1394,6 +1588,34 @@ async function uploadToApi() {
   } catch (error) {
     toast(t('uploadFailed', { msg: error.message }), 'error');
   }
+}
+
+function uploadToApi() {
+  const apiUrl = el.apiInput.value.trim();
+  if (!apiUrl) {
+    toast(t('apiRequired'), 'error');
+    return;
+  }
+  if (!isApiUrlAllowed(apiUrl)) {
+    toast(t('apiInsecure'), 'error');
+    return;
+  }
+
+  const list = getFilteredCookies();
+  if (!list.length) {
+    toast(t('nothingToUpload'), 'error');
+    return;
+  }
+
+  // 发出去的是登录态，必须先让用户看清「多少条、发到哪台主机」
+  openConfirm({
+    title: t('uploadTitle'),
+    message: t('uploadConfirm', { n: list.length, host: apiTargetHost(apiUrl) }),
+    detail: apiUrl,
+    confirmLabel: t('uploadConfirmBtn'),
+    danger: true,
+    onConfirm: () => postToApi(apiUrl)
+  });
 }
 
 function clearCurrentSiteCookies() {
@@ -1418,19 +1640,18 @@ function clearCurrentSiteCookies() {
 // ---------- 刷新 ----------
 
 async function refreshAll() {
-  const current = await fetchCurrentSiteCookies();
+  // getAll({}) 是唯一一次跨进程大对象传输。
+  // 旧代码在刷新时对同一份数据连续读了两次（先读缓存再强制重读），
+  // 这是侧边栏滑入时出现长任务、也就是「卡几下」的主因之一，现已合并为一次。
   const all = await getAllCookiesEverywhere(true);
 
-  const seen = new Map();
-  current.forEach(c => seen.set(cookieKey(c), c));
-  state.currentCookies = Array.from(seen.values());
+  state.allCookies = all;
+  state.currentCookies = filterCurrentSite(all);
 
   // 清掉已消失条目的选择状态，避免计数虚高
   const alive = new Set(all.map(cookieKey));
-  state.selected.forEach(key => { if (!alive.has(key)) state.selected.delete(key); });
   state.selected = new Set([...state.selected].filter(key => alive.has(key)));
 
-  state.allCookies = all;
   render();
 }
 
@@ -1465,19 +1686,30 @@ function bindEvents() {
   el.tabCurrent.addEventListener('click', () => switchTab('current'));
   el.tabAll.addEventListener('click', () => switchTab('all'));
 
+  let searchTimer = null;
+
   el.searchInput.addEventListener('input', () => {
     state.query = el.searchInput.value;
     el.searchClear.hidden = !state.query;
-    render({ resetScroll: true });
+
+    // 输入防抖：连敲 6 个字只重建一次列表。
+    // 旧写法每敲一个字都整表重建，实测 6 次输入累计 300ms+，全是长任务。
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => render({ resetScroll: true }), 100);
   });
 
   el.searchClear.addEventListener('click', () => {
+    clearTimeout(searchTimer);
     el.searchInput.value = '';
     state.query = '';
     el.searchClear.hidden = true;
     el.searchInput.focus();
     render({ resetScroll: true });
   });
+
+  // 列表事件一次性委托绑定，条目再多也不增加监听器
+  el.cookieList.addEventListener('click', onListClick);
+  el.cookieList.addEventListener('change', onListChange);
 
   el.sortBtn.addEventListener('click', () => {
     state.sort = SORT_KEYS[(SORT_KEYS.indexOf(state.sort) + 1) % SORT_KEYS.length];
@@ -1548,20 +1780,18 @@ function bindEvents() {
   el.githubBtn.addEventListener('click', openRepo);
   el.aboutRepoBtn.addEventListener('click', openRepo);
 
-  document.querySelectorAll('.theme-option').forEach(button => {
-    button.addEventListener('click', () => {
-      setTheme(button.dataset.theme);
-      toast(button.dataset.theme === 'auto'
-        ? t('themeFollowed')
-        : t('themeSwitched', { mode: button.textContent }));
-    });
-  });
+  // 外观：顶栏单键循环 + 设置面板里的同一个入口
+  el.themeBtn.addEventListener('click', cycleTheme);
+  el.themeCycleBtn.addEventListener('click', cycleTheme);
 
   el.saveApiBtn.addEventListener('click', () => {
     storage.set({ apiUrl: el.apiInput.value.trim() });
     toast(t('save'));
+    updateApiTargetInfo();
   });
 
+  el.apiInput.addEventListener('input', updateApiTargetInfo);
+  el.testApiBtn.addEventListener('click', testApiConnection);
   el.uploadBtn.addEventListener('click', uploadToApi);
   el.clearBtn.addEventListener('click', clearCurrentSiteCookies);
 
@@ -1630,6 +1860,15 @@ function bindEvents() {
 
     // 弹窗打开时不处理列表快捷键
     if (document.querySelector('.modal:not([hidden])')) return;
+
+    // 在搜索框里按 ↓ / ↑ 直接进入列表导航
+    if (event.target === el.searchInput && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      if (!state.visible.length) return;
+      event.preventDefault();
+      focusItem(event.key === 'ArrowDown' ? 0 : state.visible.length - 1, true);
+      return;
+    }
+
     if (event.target.matches('input, textarea, select')) return;
 
     const list = state.visible;
@@ -1639,10 +1878,7 @@ function bindEvents() {
       event.preventDefault();
       const step = event.key === 'ArrowDown' ? 1 : -1;
       const start = state.focusIndex < 0 ? (step > 0 ? -1 : list.length) : state.focusIndex;
-      state.focusIndex = Math.min(list.length - 1, Math.max(0, start + step));
-      render({ force: true });
-      const node = el.cookieList.querySelector(`li[data-index="${state.focusIndex}"]`);
-      if (node && node.scrollIntoView) node.scrollIntoView({ block: 'nearest' });
+      focusItem(Math.min(list.length - 1, Math.max(0, start + step)), true);
       return;
     }
 
@@ -1659,11 +1895,23 @@ function bindEvents() {
   });
 }
 
+// 标签页下方的滑动指示条：切换时平滑移动，而不是「这条灭那条亮」的硬跳
+function updateTabIndicator() {
+  if (!el.tabIndicator) return;
+
+  const active = state.tab === 'all' ? el.tabAll : el.tabCurrent;
+  if (!active || !active.offsetWidth) return;
+
+  el.tabIndicator.style.width = `${active.offsetWidth - 16}px`;
+  el.tabIndicator.style.transform = `translateX(${active.offsetLeft + 8}px)`;
+}
+
 function switchTab(tab) {
   state.tab = tab;
   state.focusIndex = -1;
   el.tabCurrent.classList.toggle('active', tab === 'current');
   el.tabAll.classList.toggle('active', tab === 'all');
+  updateTabIndicator();
   render({ resetScroll: true });
 }
 
@@ -1677,7 +1925,7 @@ function previewCookies() {
     session: false, storeId: '0'
   }, extra || {});
 
-  return [
+  const list = [
     mk('.github.com', '/', 'user_session', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE3OTk5OTk5OTl9.signature', { secure: true, httpOnly: true, expirationDate: now + 86400 * 12 }),
     mk('.github.com', '/', 'logged_in', 'yes', { secure: true, httpOnly: true, expirationDate: now + 86400 * 360 }),
     mk('.github.com', '/', '_gh_sess', 'U2FsdGVkX1%2B7xk9QmZ4pLd2vR8tN3wYc%3D', { secure: true, httpOnly: true }),
@@ -1692,6 +1940,27 @@ function previewCookies() {
     mk('.bilibili.com', '/', 'b_nut', '1699999999', { sameSite: 'unspecified' }),
     mk('.example.com', '/', 'theme', 'light', { expirationDate: now + 86400 * 400 })
   ];
+
+  // 本地性能压测钩子：直接打开 popup.html 时加 ?stress=N 可补 N 条合成 Cookie，
+  // 用来在真机上量首次渲染/重渲染耗时。扩展环境下不会走到这里。
+  const stress = Number(new URLSearchParams(location.search).get('stress') || 0);
+  if (stress > 0) {
+    const names = ['session_id', 'csrf_token', 'user_pref', 'analytics_id', '_ga', 'ab_test', 'cart_token', 'locale', 'timezone', 'experiment'];
+    const paths = ['/', '/api', '/settings'];
+    for (let i = 0; i < stress; i++) {
+      list.push(mk('.github.com', paths[i % paths.length], `${names[i % names.length]}${i}`,
+        `v${i}-${'x'.repeat(40 + (i % 60))}`,
+        {
+          secure: i % 2 === 0,
+          httpOnly: i % 4 === 0,
+          sameSite: i % 5 === 0 ? 'no_restriction' : 'lax',
+          hostOnly: i % 7 === 0,
+          expirationDate: now + 86400 * (1 + (i % 400))
+        }));
+    }
+  }
+
+  return list;
 }
 
 async function initPreview() {
@@ -1706,7 +1975,10 @@ async function initPreview() {
   state.allCookies = allCookiesCache;
 
   el.siteInfo.textContent = `${t('previewSite')} · github.com`;
-  el.aboutInfo.textContent = t('emptyPreviewDesc');
+  el.aboutVersion.textContent = '—';
+  el.aboutMode.textContent = t('previewSite');
+  applyTheme();
+  updateApiTargetInfo();
 
   el.loader.hidden = true;
   el.app.hidden = false;
@@ -1716,7 +1988,34 @@ async function initPreview() {
 
 // ---------- 初始化 ----------
 
+// 侧边栏是从右侧滑出来的，这段动画里主线程一忙，用户看到的就是「卡几下」。
+// 对策：外壳先上屏、列表用骨架占位，把「拉数据 + 建列表」这两件重活推迟到动画结束之后。
+const PANEL_SETTLE_MS = 170;
+const SKELETON_ROWS = 4;
+
+function showSkeleton() {
+  el.cookieList.classList.add('is-skeleton');
+  el.cookieList.innerHTML = Array.from({ length: SKELETON_ROWS }, () => `
+    <li class="skeleton-item" aria-hidden="true">
+      <div class="sk-line sk-a"></div>
+      <div class="sk-line sk-b"></div>
+      <div class="sk-line sk-c"></div>
+      <div class="sk-tags"><span></span><span></span><span></span></div>
+    </li>`).join('');
+}
+
+function afterPanelOpen() {
+  if (state.mode !== 'panel') return Promise.resolve();
+  return new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, PANEL_SETTLE_MS)));
+  });
+}
+
 async function init() {
+  // 界面文案语言与 <html lang> 保持一致：屏幕阅读器、浏览器翻译、
+  // 密码管理器的表单识别都读这个属性，写死 zh-CN 会让英语用户被误判成中文页面。
+  document.documentElement.lang = CURRENT_LANG;
+
   cacheDom();
   applyI18n();
   bindModalBasics();
@@ -1738,18 +2037,24 @@ async function init() {
     applyTheme();
   }
   if (settings.apiUrl) el.apiInput.value = settings.apiUrl;
+  updateApiTargetInfo();
 
   const manifest = chrome.runtime.getManifest();
-  el.aboutInfo.textContent = t('aboutLine', {
-    v: manifest.version,
-    mode: state.mode === 'panel' ? t('modePanel') : t('modePopup')
-  });
+  el.aboutVersion.textContent = `v${manifest.version}`;
+  el.aboutMode.textContent = state.mode === 'panel' ? t('modePanel') : t('modePopup');
 
-  await syncCurrentTab();
-  await refreshAll();
-
+  // 外壳立即上屏（骨架比转圈更能撑住滑入动画），重活留到动画结束之后
   el.loader.hidden = true;
   el.app.hidden = false;
+  if (state.mode === 'panel') showSkeleton();
+  // 指示条的对齐要读 offsetWidth（强制布局），放进 rAF：这一帧本来就要布局，等于白捡
+  requestAnimationFrame(updateTabIndicator);
+
+  await syncCurrentTab();
+  await afterPanelOpen();
+  await refreshAll();
+  el.cookieList.classList.remove('is-skeleton');
+  requestAnimationFrame(updateTabIndicator);
 
   let changeTimer = null;
   chrome.cookies.onChanged.addListener(() => {
@@ -1773,6 +2078,13 @@ async function init() {
     chrome.tabs.onActivated.addListener(scheduleSwitch);
     chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
       if (changeInfo.url) scheduleSwitch();
+    });
+
+    // 侧边栏被拖宽/收窄后，指示条要跟着重新对齐
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updateTabIndicator, 120);
     });
   }
 }

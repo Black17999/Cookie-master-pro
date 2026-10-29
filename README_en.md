@@ -15,12 +15,13 @@ A simple yet powerful cookie manager that lives in your browser's **side panel**
 | Update | Description |
 | --- | --- |
 | 🪟 **Side Panel** | Opens on the right of the browser, full height, persists across tab switches, freely resizable |
-| 🌗 **Auto Dark Mode** | Follows your browser theme by default, or pin it to light/dark in settings |
+| 🌗 **One-Click Theme Cycle** | Header button cycles Auto → Light → Dark; the icon always shows the current mode |
 | 🔍 **Cross-Site Search** | Search cookies from **any** website without opening it first |
 | ☑️ **Batch Operations** | Multi-select to copy, export or delete in bulk |
 | 💻 **Code Generation** | Turn cookies into runnable `cURL` / `fetch` / `Python requests` code |
 | 🔑 **JWT Decoding** | Detects JWTs and reveals issued/expiry/subject; URL-encoded values decode in one click |
 | 🛡️ **Security Audit** | Flags sensitive cookies without `Secure`, `SameSite=None` without `Secure`, over-long lifetimes and more |
+| 🔎 **Visible Scope** | Every card shows its `domain/path`; same-named cookies highlight their scope — no more "differs from F12" |
 | ↩️ **Undo Delete** | Restore within 6 seconds — deletions are no longer irreversible |
 | 🌐 **Bilingual UI** | Interface language follows your browser (Chinese / English) |
 | ⌨️ **Keyboard Control** | `↑↓` navigate, `Enter` edit, `Delete` remove, `Ctrl/Cmd+F` search |
@@ -37,7 +38,8 @@ A simple yet powerful cookie manager that lives in your browser's **side panel**
 - **🔍 Global Search** — Search across every site; partial domains work too (`github` matches `github.com`)
 - **🗂️ Domain Grouping** — Collapse by domain when there are many
 - **🏷️ Sensitivity Detection** — Highlights session, token and auth cookies
-- **📊 Attribute Badges** — HttpOnly / Secure / SameSite / expiry at a glance
+- **📊 Attribute Badges** — HttpOnly / Secure / SameSite / expiry / Partitioned at a glance
+- **🔎 Scope Labels** — Each card shows `domain/path`; same-named cookies highlight their scope so you never compare the wrong one
 
 ### Extraction & workflow
 
@@ -45,7 +47,7 @@ A simple yet powerful cookie manager that lives in your browser's **side panel**
 - **📤 Multiple Export Formats** — Header String / JSON / Netscape
 - **☑️ Batch Export** — Select many, copy or export at once
 - **📥 Smart Import** — Auto-detects JSON, Header String and Netscape formats
-- **🌐 Remote Push** — POST cookies to a configured API
+- **🌐 Cookie Sync** — POST the current list to your own endpoint (HTTPS only, with a confirmation step)
 
 ### Analysis & security
 
@@ -147,11 +149,28 @@ Use **Risky only** in the toolbar to show just those.
 
 ### Appearance
 
-The panel follows your browser theme by default. To pin it: ⚙️ → **Appearance** → **Auto / Light / Dark**.
+The panel follows your browser theme by default. The leftmost icon in the header cycles **Auto → Light → Dark** in one click, and the icon always reflects the current mode (monitor / sun / moon). The same switch also lives in Settings.
 
-### Remote API
+### Scope, and “why does it differ from F12?”
 
-Open ⚙️, enter and save your API URL, then push the current list to it as a JSON POST.
+Every card shows the cookie's scope (`domain` + `path`). If the same name appears more than once, the scope is highlighted in the accent colour and the tooltip spells it out.
+
+This exists to kill a common confusion: **several cookies can share a name and differ only by path or domain — and their values can be completely different.** DevTools' Application → Cookies panel groups by Domain / Path, so comparing against the wrong row makes the extension look wrong. Two more cases:
+
+- Partitioned cookies (CHIPS) reuse the name but hold different values per top-level site; they carry a `Partitioned` badge;
+- `HttpOnly` cookies never appear in `document.cookie` — only DevTools → Application → Cookies lists them.
+
+
+### Cookie sync (remote API)
+
+Open ⚙️, enter and save an endpoint, then push the current list to it as a JSON POST — handy for moving a signed-in session around.
+
+Safety rails:
+
+- HTTPS only (`localhost` / `127.0.0.1` excepted);
+- A live “Data will be sent to: <host>” line under the input;
+- A confirmation dialog naming the cookie count and target host before anything leaves;
+- A “Test connection” button that probes with a `HEAD` request.
 
 ---
 
@@ -167,7 +186,7 @@ Open ⚙️, enter and save your API URL, then push the current list to it as a 
 
   <img src="screenshots/dark-mode.png" alt="Dark mode" width="420">
   <br>
-  <sub>Main interface · dark mode (follows the browser)</sub>
+  <sub>Main interface · dark mode</sub>
 
   <br><br>
 
@@ -185,7 +204,7 @@ Open ⚙️, enter and save your API URL, then push the current list to it as a 
 
   <img src="screenshots/settings.png" alt="Settings" width="420">
   <br>
-  <sub>Settings · pin the appearance mode</sub>
+  <sub>Settings · appearance, cookie sync and danger zone</sub>
 
   <br><br>
 
